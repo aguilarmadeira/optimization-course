@@ -26,6 +26,7 @@ Autor: **José Firmino Aguilar Madeira** · ORCID [0000-0001-9523-3808](https://
 ## Código
 
 As funções têm os nomes citados nos slides (p. ex. `GoldenSection.m`); os exemplos começam por `ex` seguido do número do deck, porque MATLAB e Python não aceitam nomes começados por algarismo.
+Os exemplos correm a partir de qualquer pasta; a organização do código (utilitários comuns, `uc_setup` para usar as funções nos seus próprios scripts) está em [`code/README.md`](code/README.md).
 Os códigos de investigação GLODS e DMS não estão neste repositório: são distribuídos na aula e têm páginas próprias (ver os `README.md` das pastas `05_1_glods` e `06_5_dms`).
 
 ## Licenças

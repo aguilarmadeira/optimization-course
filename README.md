@@ -14,6 +14,10 @@ Author: **José Firmino Aguilar Madeira** · ORCID [0000-0001-9523-3808](https:/
 | `references/` | The course bibliography (PDF). |
 | `code/matlab/`, `code/python/` | One folder per method, numbered as the deck (e.g. `02_2_golden_section/`): the function and an example `ex02_2_…` that reproduces the numbers on the slides. |
 
+## Code
+
+The examples run from any folder; how the code is organised (shared utilities, `uc_setup` to use the functions in your own scripts) is described in [`code/README.md`](code/README.md) (in Portuguese).
+
 ## Syllabus
 
 1. Optimization problems and modelling; applications
