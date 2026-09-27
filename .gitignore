@@ -1,0 +1,22 @@
+# LaTeX
+*.aux
+*.log
+*.nav
+*.snm
+*.toc
+*.out
+*.vrb
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+# MATLAB
+*.asv
+*.mex*
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+# Sistema
+.DS_Store
+Thumbs.db

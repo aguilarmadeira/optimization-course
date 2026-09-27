@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "Se usar estes apontamentos ou este código, cite-os assim. / If you use these notes or code, please cite them as below."
+title: "Otimização — apontamentos e código (ISEL)"
+abstract: "Lecture notes (Portuguese) and MATLAB/Python code for the course Otimização (Optimization) at ISEL: univariate, multivariate, constrained, global and multiobjective optimization."
+type: software
+authors:
+  - family-names: "Madeira"
+    given-names: "José Firmino Aguilar"
+    orcid: "https://orcid.org/0000-0001-9523-3808"
+    affiliation: "ISEL — Instituto Superior de Engenharia de Lisboa, Departamento de Matemática"
+version: "1.0.0"
+date-released: "2026-09-27"
+license:
+  - CC-BY-NC-ND-4.0
+  - MIT
+keywords:
+  - optimization
+  - derivative-free optimization
+  - multiobjective optimization
+  - global optimization
+  - lecture notes
+  - MATLAB
+  - Python
+# Depois de criar o repositório, acrescentar:
+# repository-code: "https://github.com/<utilizador>/optimization-course"
