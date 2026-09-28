@@ -25,3 +25,17 @@
   - `NelderMeadComp.m` / `nelder_mead_comp.py` — a variante do Nelder–Mead usada na comparação de 4.3 (contração exterior aceite só com `<`); minimizador interno de 4.3.1 e 4.3.2.
 - **Cada função existe uma só vez.** A função de um método fica na pasta do deck que a introduz (p. ex. `NelderMead` em `03_2_3_nelder_mead/`); quem a reutiliza noutro deck usa-a de lá, sem cópia. O que é usado por vários decks e não pertence a um só fica em `common/`.
 - O caderno `python/03_multivariate_optimization/03_3_comparison/cap3_comparacao.ipynb` é autónomo (tem as suas próprias implementações).
+
+## Correr no Colab (sem instalar nada)
+
+Há um caderno por capítulo em `python/notebooks/`, com os exemplos `ex*.py` desse capítulo. A primeira célula clona o repositório no Colab (ou, se o caderno for aberto dentro do repositório, usa `code/python`); cada secção corre um exemplo e confere-o com os slides.
+
+| Capítulo | Colab |
+|---|---|
+| 2 Otimização unidimensional | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/02_univariate_optimization.ipynb) |
+| 3 Otimização multidimensional sem restrições | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/03_multivariate_optimization.ipynb) |
+| 4 Otimização com restrições | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/04_constrained_optimization.ipynb) |
+| 5 Otimização global | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/05_global_optimization.ipynb) |
+| 6 Otimização multiobjetivo | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/06_multiobjective_optimization.ipynb) |
+
+Os `ex*.py` são a fonte: os cadernos são gerados por `python/notebooks/make_notebooks.py` (`python make_notebooks.py --executar` gera e guarda as saídas). Depois de alterar um exemplo, voltar a gerá-los.
