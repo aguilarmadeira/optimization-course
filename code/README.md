@@ -28,7 +28,7 @@
 
 ## Correr no Colab (sem instalar nada)
 
-Há um caderno por capítulo em `python/notebooks/`, com os exemplos `ex*.py` desse capítulo. A primeira célula clona o repositório no Colab (ou, se o caderno for aberto dentro do repositório, usa `code/python`); cada secção corre um exemplo e confere-o com os slides.
+Há um caderno por exemplo (`ex*.ipynb`, ao lado do `ex*.py`) e um caderno por capítulo em `python/notebooks/`, com todos os exemplos desse capítulo. A primeira célula clona o repositório no Colab (ou, se o caderno for aberto dentro do repositório, usa `code/python`); cada secção corre um exemplo e confere-o com os slides.
 
 | Capítulo | Colab |
 |---|---|
@@ -38,4 +38,4 @@ Há um caderno por capítulo em `python/notebooks/`, com os exemplos `ex*.py` de
 | 5 Otimização global | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/05_global_optimization.ipynb) |
 | 6 Otimização multiobjetivo | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/06_multiobjective_optimization.ipynb) |
 
-Os `ex*.py` são a fonte: os cadernos são gerados por `python/notebooks/make_notebooks.py` (`python make_notebooks.py --executar` gera e guarda as saídas). Depois de alterar um exemplo, voltar a gerá-los.
+Os `ex*.py` são a fonte: os cadernos são gerados por `python/notebooks/make_notebooks.py` (`python make_notebooks.py --executar` gera os dois tipos e guarda as saídas). Depois de alterar um exemplo, voltar a gerá-los.

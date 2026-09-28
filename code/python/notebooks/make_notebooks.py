@@ -1,4 +1,5 @@
-"""Gera os cadernos Jupyter/Colab (um por capítulo) a partir dos exemplos ex*.py.
+"""Gera os cadernos Jupyter/Colab a partir dos exemplos ex*.py: um por capítulo
+(nesta pasta) e um por exemplo (ex*.ipynb, ao lado do ex*.py).
 
 Os ficheiros ex*.py são a única fonte: cada caderno tem uma célula de
 preparação (no Colab clona o repositório; dentro do repositório usa a pasta
@@ -81,8 +82,9 @@ PREPARACAO = '''\
 # Preparação: põe as funções da UC no caminho do Python.
 # No Colab (ou noutra pasta), clona o repositório; dentro do repositório, usa code/python.
 import os, sys
-if os.path.isfile(os.path.join("..", "uc_setup.py")):
-    RAIZ = os.path.abspath("..")
+LOCAL = [p for p in ("..", os.path.join("..", "..")) if os.path.isfile(os.path.join(p, "uc_setup.py"))]
+if LOCAL:
+    RAIZ = os.path.abspath(LOCAL[0])
 else:
     if not os.path.isdir("optimization-course"):
         !git clone -q --depth 1 https://github.com/aguilarmadeira/optimization-course
@@ -166,17 +168,43 @@ def caderno(pasta, titulo):
     return os.path.join(AQUI, ficheiro), nb
 
 
+def caderno_exemplo(caminho):
+    """Um caderno só com este exemplo, ao lado do ex*.py (para o link Colab de cada método)."""
+    rel = os.path.relpath(caminho, PY).replace(os.sep, "/")
+    ficheiro = rel[:-3] + ".ipynb"
+    capitulo = CAPITULOS[rel.split("/")[0]].split(" — ", 1)
+    cel = [new_markdown_cell(
+        f"# Otimização — capítulo {capitulo[0]}: {capitulo[1]}\n\n"
+        f"[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]"
+        f"(https://colab.research.google.com/github/{REPO}/blob/main/code/python/{ficheiro})\n\n"
+        "Corra a célula **Preparação** e depois o exemplo (no Colab: *Runtime → Run all*). "
+        "No fim, o exemplo compara os resultados com os slides (*confere com os slides: sim*). "
+        "Os slides usam vírgula decimal; aqui usa-se o ponto. Caderno gerado a partir de "
+        f"`{os.path.basename(caminho)}` por `notebooks/make_notebooks.py`.\n\n"
+        "*Code comments and printed messages are in Portuguese.*"),
+        new_markdown_cell("## Preparação"), new_code_cell(PREPARACAO)] + seccao(caminho)
+    nb = new_notebook(cells=cel, metadata={
+        "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+        "language_info": {"name": "python"},
+        "colab": {"provenance": []}})
+    return os.path.join(PY, ficheiro), nb
+
+
 def main():
     executar = "--executar" in sys.argv
-    for pasta, titulo in CAPITULOS.items():
-        destino, nb = caderno(pasta, titulo)
+    trabalhos = [caderno(pasta, titulo) for pasta, titulo in CAPITULOS.items()]
+    for pasta in CAPITULOS:
+        for e in sorted(glob.glob(os.path.join(PY, pasta, "*", "ex*.py"))):
+            if os.path.splitext(os.path.basename(e))[0] in TITULOS:
+                trabalhos.append(caderno_exemplo(e))
+    for destino, nb in trabalhos:
         if executar:
             from nbconvert.preprocessors import ExecutePreprocessor
             ExecutePreprocessor(timeout=600, kernel_name="python3").preprocess(
-                nb, {"metadata": {"path": AQUI}})
+                nb, {"metadata": {"path": os.path.dirname(destino)}})
         nbformat.validate(nb)
         nbformat.write(nb, destino)
-        print(f"{os.path.basename(destino)}: {sum(c.cell_type == 'code' for c in nb.cells) - 1} exemplos")
+        print(f"{os.path.relpath(destino, PY)}: {sum(c.cell_type == 'code' for c in nb.cells) - 1} exemplo(s)")
 
 
 if __name__ == "__main__":
