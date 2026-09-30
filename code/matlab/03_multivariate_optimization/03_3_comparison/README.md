@@ -37,7 +37,7 @@ Mesmo problema (Rosenbrock), mesmo ponto inicial (−1.5, 2), mesmo critério: c
 | Aleatória localizada (30 corridas) | mediana 1030 [850; 1217] | — | — | 1030 | 975 [867; 1052] — ver nota |
 | Nelder–Mead | 166 | — | — | 166 | = |
 | Box (Δ₀ = 1) | 13 445 | — | — | 13 445 | = |
-| Hooke–Jeeves (P₀ = 0.5) | 353 | — | — | 353 | = |
+| Hooke–Jeeves (P₀ = 0.5) | 430 | — | — | 430 | = |
 | Gradiente (não atinge f < 10⁻⁴ em 3000 it.; f = 2.4·10⁻⁴) | 60 900 | 3000 | — | 72 900 | = |
 | Grad. conjugados (FR, reinício n) | 718 | 34 | — | 854 | = |
 | Newton puro | 6 | 5 | 5 | 46 | = |

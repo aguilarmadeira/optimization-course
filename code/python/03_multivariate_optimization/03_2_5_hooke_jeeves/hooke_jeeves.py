@@ -1,6 +1,7 @@
 """Método de Hooke–Jeeves (pesquisa em padrão), sem derivadas.
 
-Alterna o movimento exploratório (exploratory.py, eixo a eixo, +-P_j) com o
+Alterna o movimento exploratório (exploratory.py, eixo a eixo: avalia +-P_j e
+fica com o melhor, como em Deb, 2012) com o
 movimento de padrão xt = xb + a (xe - xb), seguido de nova exploração em
 torno de xt. Se a exploração em torno de xb falha, P <- P/2 (P só diminui:
 não é reposto em P0 a cada sucesso). Para quando todos os P_j < T_j.
@@ -27,7 +28,7 @@ class HookeJeevesResult:
     x: np.ndarray             # ponto base final
     fx: float                 # f(x) (já avaliado; não há avaliação extra no fim)
     nit: int                  # número de movimentos (linhas de history)
-    nfev: int                 # 1 + explorações (n a 2n cada) + 1 por ponto tentativo
+    nfev: int                 # 1 + explorações (2n cada) + 1 por ponto tentativo
     ngev: int = 0             # o método só usa valores de f
     nhev: int = 0
     history: np.ndarray = field(default_factory=lambda: np.zeros((0, 0)))
@@ -38,7 +39,7 @@ class HookeJeevesResult:
     message: str = ""
 
 
-def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False):
+def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None):
     """Hooke–Jeeves a partir de x0, com fator a, perturbações P0 e tolerâncias T.
 
     Parâmetros
@@ -51,11 +52,14 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False):
     kmax : número máximo de movimentos (explorações a partir da base +
         movimentos de padrão)
     verbose : se True, imprime uma linha por movimento
+    menor : (opcional) função menor(u, v) que diz se o valor u é melhor do que
+        v; por omissão, u < v (ver exploratory; deck 4.3.3, regra de
+        admissibilidade, com f a devolver o par (v(x), f(x)))
 
     Devolve
     -------
-    HookeJeevesResult com x, fx, nit, nfev = 1 (f(x0)) + as avaliações de cada
-    exploração (n a 2n) + 1 por ponto tentativo (cada padrão gasta 1 + (n a 2n));
+    HookeJeevesResult com x, fx, nit, nfev = 1 (f(x0)) + 2n por exploração
+    + 1 por ponto tentativo (cada padrão gasta 1 + 2n);
     history com uma linha por movimento:
     [m, tipo, xb(1:n), xt(1:n), f(xt), xe(1:n), f(xe), f_ref, P(1:n), sucesso, nfev]
     (tipo = 0: exploração em torno de xb, xt e f(xt) = NaN, f_ref = f(xb);
@@ -67,6 +71,9 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False):
     """
     if a is None:
         a = 2.0
+    if menor is None:
+        menor = lambda u, v: u < v        # a ordem habitual
+    reg = lambda y: y[-1] if np.ndim(y) else y   # valor registado
     xb = np.array(x0, dtype=float).ravel()
     n = xb.size
     P = np.array(P0, dtype=float).ravel() * np.ones(n)
@@ -75,7 +82,7 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False):
         raise ValueError("hooke_jeeves: P0 e T têm de ser positivos.")
 
     fb = f(xb); nfev = 1                  # f(x0) conta
-    ftrace = [fb]
+    ftrace = [reg(fb)]
     hist = []
     m = 0
     flag = 1
@@ -83,12 +90,12 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False):
     nan = [np.nan] * n
 
     while m < kmax:                       # arranque / reinício
-        r = exploratory(f, xb, fb, P)     # exploração em torno de xb
+        r = exploratory(f, xb, fb, P, menor)   # exploração em torno de xb
         xe, fe = r.x, r.fx
         nfev += r.nfev; ftrace.extend(r.ftrace)
         m += 1
-        hist.append([m, 0, *xb, *nan, np.nan, *xe, fe, fb, *P, fe < fb, nfev])
-        if fe >= fb:                      # falhou
+        hist.append([m, 0, *xb, *nan, np.nan, *xe, reg(fe), reg(fb), *P, menor(fe, fb), nfev])
+        if not menor(fe, fb):             # falhou (fe >= fb)
             P = P / 2
             if np.all(P < T):
                 flag = 0
@@ -96,19 +103,19 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False):
         else:
             while m < kmax:               # movimentos de padrão
                 xt = xb + a * (xe - xb); ft = f(xt)          # padrão: ponto tentativo
-                nfev += 1; ftrace.append(ft)
-                r = exploratory(f, xt, ft, P)                # exploração em torno de xt
+                nfev += 1; ftrace.append(reg(ft))
+                r = exploratory(f, xt, ft, P, menor)         # exploração em torno de xt
                 xn, fn = r.x, r.fx
                 nfev += r.nfev; ftrace.extend(r.ftrace)
                 m += 1
-                hist.append([m, 1, *xb, *xt, ft, *xn, fn, fe, *P, fn < fe, nfev])
-                if fn >= fe:              # rejeitado: recuar para xe e reiniciar
+                hist.append([m, 1, *xb, *xt, reg(ft), *xn, reg(fn), reg(fe), *P, menor(fn, fe), nfev])
+                if not menor(fn, fe):     # rejeitado (fn >= fe): recuar para xe e reiniciar
                     xb, fb = xe, fe
                     break
                 else:                     # aceite: continuar o padrão
                     xb, fb = xe, fe
                     xe, fe = xn, fn
-    if fe < fb:                           # saiu por kmax a meio de um padrão aceite
+    if menor(fe, fb):                     # saiu por kmax a meio de um padrão aceite
         xb, fb = xe, fe
     x, fx = xb, fb
 

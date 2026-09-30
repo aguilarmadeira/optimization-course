@@ -22,7 +22,7 @@
 %
 %   Valores dos slides (n_f / n_g / n_H / equiv.):
 %     aleatória localizada 975 [867; 1052]; Nelder-Mead 166; Box 13 445;
-%     Hooke-Jeeves 353; gradiente 60 900 / 3000 / - / 72 900 (não atinge
+%     Hooke-Jeeves 430; gradiente 60 900 / 3000 / - / 72 900 (não atinge
 %     f < 1e-4 em 3000 it.); FR (reinício n) 718 / 34 / - / 854;
 %     Newton puro 6 / 5 / 5 / 46; Newton amortecido 281 / 12 / 12 / 377.
 %
@@ -67,7 +67,7 @@ linhas_ok = abs(med - 975) <= 0.15*975 && nfalhas == 0;
 nomes = {'Nelder-Mead', 'Box (Delta_0 = 1)', 'Hooke-Jeeves (P_0 = 0.5)', 'Gradiente', ...
          'Grad. conj. (FR, reinício n)', 'Newton puro', 'Newton amortecido'};
 ordem = [0 0 0 1 1 2 2];
-slides = [166 0 0 166; 13445 0 0 13445; 353 0 0 353; 60900 3000 0 72900; ...
+slides = [166 0 0 166; 13445 0 0 13445; 430 0 0 430; 60900 3000 0 72900; ...
           718 34 0 854; 6 5 5 46; 281 12 12 377];
 res = zeros(7, 4);
 for j = 1:7
@@ -117,7 +117,7 @@ c2 = [nd(2) == 12 && abs(nd(1) - 281) <= 0.02*281, fr(2) == 34 && fr(1) - fr(2) 
 fprintf('  Newton: 269 + 12 = 281 (a menos de 2 %%): %s | FR: 684 + 34 = 718: %s\n', simnao{c2 + 1});
 
 fprintf(['\n  aleatória: mediana a menos de 15%% de 975 e 30/30 (verificação estatística): %s | NM 166: %s', ...
-         ' | Box 13 445: %s | HJ 353: %s | gradiente 72 900: %s | FR 854: %s | Newton puro 46: %s', ...
+         ' | Box 13 445: %s | HJ 430: %s | gradiente 72 900: %s | FR 854: %s | Newton puro 46: %s', ...
          ' | amortecido 377 (n_f a menos de 2 %%): %s\n'], simnao{linhas_ok + 1});
 fprintf(['  Nota: o n_f do Newton amortecido até f < 1e-4 depende do arredondamento de H\\g (Brent com tol 1e-10\n', ...
          '  num ponto quase ótimo): numpy (LU) dá 281, como nos slides; H\\g do Octave (Cholesky) %d.\n'], nd(1));

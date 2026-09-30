@@ -1,10 +1,12 @@
-function [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose)
+function [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor)
 %HOOKEJEEVES  Método de Hooke–Jeeves (pesquisa em padrão), sem derivadas.
 %
 %   [x, fx, info] = HookeJeeves(f, x0, a, P0, T)
 %   [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose)
+%   [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor)
 %
-%   Alterna o movimento exploratório (Exploratory.m, eixo a eixo, +-P_j) com o
+%   Alterna o movimento exploratório (Exploratory.m, eixo a eixo: avalia +-P_j
+%   e fica com o melhor, como em Deb, 2012) com o
 %   movimento de padrão xt = xb + a (xe - xb), seguido de nova exploração em
 %   torno de xt. Se a exploração em torno de xb falha, P <- P/2 (P só diminui:
 %   não é reposto em P0 a cada sucesso). Para quando todos os P_j < T_j.
@@ -18,13 +20,16 @@ function [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose)
 %     kmax     (opcional, 10000) número máximo de movimentos (explorações
 %              a partir da base + movimentos de padrão)
 %     verbose  (opcional, false) se true, imprime uma linha por movimento
+%     menor    (opcional, @(u,v) u < v) o valor u é melhor do que v? (ver
+%              Exploratory.m; deck 4.3.3: regra de admissibilidade, com f a
+%              devolver [v(x) f(x)])
 %
 %   Saídas
 %     x        ponto base final (vetor linha)
 %     fx       f(x) (já avaliado; não há avaliação extra no fim)
 %     info     estrutura com
-%       .nfev     avaliações de f: 1 (f(x0)) + as de cada exploração (n a 2n)
-%                 + 1 por ponto tentativo xt (cada padrão gasta 1 + (n a 2n))
+%       .nfev     avaliações de f: 1 (f(x0)) + 2n por exploração
+%                 + 1 por ponto tentativo xt (cada padrão gasta 1 + 2n)
 %       .ngev, .nhev   0 (o método só usa valores de f)
 %       .nit      número de movimentos (linhas de .history)
 %       .history  uma linha por movimento:
@@ -51,7 +56,8 @@ function [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose)
 
 if isempty(a), a = 2; end
 if nargin < 6 || isempty(kmax), kmax = 10000; end
-if nargin < 7, verbose = false; end
+if nargin < 7 || isempty(verbose), verbose = false; end
+if nargin < 8 || isempty(menor), menor = @(u, v) u < v; end   % a ordem habitual
 
 xb = x0(:).';
 n = numel(xb);
@@ -60,29 +66,29 @@ T = T(:).' .* ones(1, n);
 if any(P <= 0) || any(T <= 0), error('HookeJeeves: P0 e T têm de ser positivos.'); end
 
 fb = f(xb);  nfev = 1;           % f(x0) conta
-ftrace = fb;
+ftrace = fb(end);
 hist = zeros(0, 4*n + 7);
 m = 0;
 flag = 1;
 xe = xb;  fe = fb;
 
 while m < kmax                   % arranque / reinício
-  [xe, fe, ie] = Exploratory(f, xb, fb, P);          % exploração em torno de xb
+  [xe, fe, ie] = Exploratory(f, xb, fb, P, menor);   % exploração em torno de xb
   nfev = nfev + ie.nfev;  ftrace = [ftrace, ie.ftrace];
   m = m + 1;
-  hist(m, :) = [m, 0, xb, NaN(1, n), NaN, xe, fe, fb, P, fe < fb, nfev];
-  if fe >= fb                    % falhou
+  hist(m, :) = [m, 0, xb, NaN(1, n), NaN, xe, fe(end), fb(end), P, menor(fe, fb), nfev];
+  if ~menor(fe, fb)              % falhou (fe >= fb)
     P = P/2;
     if all(P < T), flag = 0; break; end
   else
     while m < kmax               % movimentos de padrão
       xt = xb + a*(xe - xb);  ft = f(xt);            % padrão: ponto tentativo
-      nfev = nfev + 1;  ftrace(end + 1) = ft;
-      [xn, fn, ie] = Exploratory(f, xt, ft, P);      % exploração em torno de xt
+      nfev = nfev + 1;  ftrace(end + 1) = ft(end);
+      [xn, fn, ie] = Exploratory(f, xt, ft, P, menor);   % exploração em torno de xt
       nfev = nfev + ie.nfev;  ftrace = [ftrace, ie.ftrace];
       m = m + 1;
-      hist(m, :) = [m, 1, xb, xt, ft, xn, fn, fe, P, fn < fe, nfev];
-      if fn >= fe                % rejeitado: recuar para xe e reiniciar
+      hist(m, :) = [m, 1, xb, xt, ft(end), xn, fn(end), fe(end), P, menor(fn, fe), nfev];
+      if ~menor(fn, fe)          % rejeitado (fn >= fe): recuar para xe e reiniciar
         xb = xe;  fb = fe;
         break
       else                       % aceite: continuar o padrão
@@ -92,7 +98,7 @@ while m < kmax                   % arranque / reinício
     end
   end
 end
-if fe < fb                       % saiu por kmax a meio de um padrão aceite
+if menor(fe, fb)                 % saiu por kmax a meio de um padrão aceite
   xb = xe;  fb = fe;
 end
 x = xb;  fx = fb;

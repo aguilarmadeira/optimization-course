@@ -56,6 +56,7 @@ TITULOS = {
     "ex04_2_kkt": "4.2 Condições de Karush–Kuhn–Tucker (KKT)",
     "ex04_3_1_exterior_penalty": "4.3.1 Método da função de penalização exterior",
     "ex04_3_2_barrier": "4.3.2 Método da função de barreira / penalização interior",
+    "ex04_3_3_constraint_handling": "4.3.3 Restrições na prática: penalizar, rejeitar ou comparar",
     "ex05_2_simulated_annealing": "5.2 Simulated annealing",
     "ex05_3_genetic_algorithms": "5.3 Algoritmos genéticos",
     "ex06_3_aggregation": "6.3 Métodos de agregação de objetivos",

@@ -2,14 +2,16 @@
 
 f(x) = 3 x1^2 + x2^2 - 12 x1 - 8 x2  (mínimo em (2,4), f = -28):
   «Uma exploração à mão»: de xb = (1,1), f = -16, com P = (0.5, 0.5):
-    (1.5,1) -> -18.25, (1.5,1.5) -> -21, com 2 avaliações;
+    x1: (1.5,1) -> -18.25, (0.5,1) -> -12.25: fica (1.5,1);
+    x2: (1.5,1.5) -> -21, (1.5,0.5) -> -15: fica (1.5,1.5); 4 avaliações;
   «Exemplo completo»: x0 = (1,1), a = 2, P0 = (0.5,0.5), T = (0.1,0.1):
     padrão (2,2) -> (2,2.5), aceite; (2.5,3.5) -> (2,4), aceite;
     (2,5.5) -> (2,5), rejeitado; exploração em (2,4) falha com P = 0.5,
     0.25, 0.125; 0.0625 < T: para em (2,4), f = -28.
 Rosenbrock a partir de (-1.5, 2), P0 = 0.5, a = 2, T = 1e-6 (como no
-  caderno cap3_comparacao.ipynb): n_f = 353 até f < 1e-4.
-Custo: n <= n_f <= 2n por exploração; 1 + (n a 2n) por movimento de padrão.
+  caderno cap3_comparacao.ipynb): n_f = 430 até f < 1e-4.
+Custo: 2n por exploração (avaliam-se +P_j e -P_j; Deb, 2012); 1 + 2n por
+  movimento de padrão.
 
 Contagens: f(x0) conta; f(xb) nunca é reavaliado (fica guardado).
 Os slides usam vírgula decimal; aqui usa-se o ponto.
@@ -51,11 +53,12 @@ r = exploratory(quad, xb, fb, P)
 for h in r.history:
     print("  x%d %s P%d: (%g, %g) -> f = %g, %s"
           % (h[0], "+" if h[1] > 0 else "-", h[0], h[2], h[3], h[4],
-             "melhora: guarda-se" if h[5] else "não melhora"))
+             "a melhor: guarda-se" if h[5] else "não é a melhor"))
 print("xe = (%g, %g), f = %g, com %d avaliações" % (*r.x, r.fx, r.nfev))
-c = [confere(fb, -16, 0), confere(r.history[:, 2:5], [[1.5, 1, -18.25], [1.5, 1.5, -21]], 2),
-     confere(r.x, [1.5, 1.5], 1), r.nfev == 2]
-print("  f(1,1) = -16: %s | -18.25 e -21: %s | xe = (1.5,1.5): %s | 2 avaliações: %s" % simnao(c))
+c = [confere(fb, -16, 0),
+     confere(r.history[:, 2:5], [[1.5, 1, -18.25], [0.5, 1, -12.25], [1.5, 1.5, -21], [1.5, 0.5, -15]], 2),
+     confere(r.x, [1.5, 1.5], 1), r.nfev == 4]
+print("  f(1,1) = -16: %s | -18.25, -12.25, -21, -15: %s | xe = (1.5,1.5): %s | 4 avaliações: %s" % simnao(c))
 ok = ok and all(c)
 
 # --------------------------------------------- «Exemplo completo»
@@ -88,7 +91,7 @@ hit = int(np.argmax(r.ftrace < 1e-4)) + 1
 print("primeira avaliação com f < 1e-4: n_f = %d" % hit)
 print("no fim: x = (%.6f, %.6f), f = %.2e;  %d movimentos, n_f total = %d"
       % (*r.x, r.fx, r.nit, r.nfev))
-# custo de cada movimento: n a 2n (exploração), 1 + (n a 2n) (padrão), n = 2
+# custo de cada movimento: 2n (exploração), 1 + 2n (padrão), n = 2
 H = r.history; n = 2
 dn = np.diff(np.concatenate(([1], H[:, -1])))
 ce = dn[H[:, 1] == 0]; cp = dn[H[:, 1] == 1]
@@ -97,9 +100,8 @@ print("custo por exploração: %d a %d; por movimento de padrão: %d a %d"
 r5 = hooke_jeeves(rosen, x0, a, P0, [1e-5, 1e-5])
 print("(com T = 1e-5: n_f = %d até f < 1e-4 e n_f total = %d)"
       % (int(np.argmax(r5.ftrace < 1e-4)) + 1, r5.nfev))
-c = [hit == 353, bool(np.all((ce >= n) & (ce <= 2 * n))),
-     bool(np.all((cp >= 1 + n) & (cp <= 1 + 2 * n)))]
-print("  n_f = 353 até f < 1e-4: %s | n <= n_f <= 2n: %s | 1 + (n a 2n): %s" % simnao(c))
+c = [hit == 430, bool(np.all(ce == 2 * n)), bool(np.all(cp == 1 + 2 * n))]
+print("  n_f = 430 até f < 1e-4: %s | n_f = 2n por exploração: %s | 1 + 2n por padrão: %s" % simnao(c))
 ok = ok and all(c)
 
 print("\nconfere com os slides: %s" % ("sim" if ok else "não"))

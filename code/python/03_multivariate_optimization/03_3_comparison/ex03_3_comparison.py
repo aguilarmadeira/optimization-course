@@ -14,7 +14,7 @@ Regras (folha de convenções da UC):
 
 Valores dos slides (n_f / n_g / n_H / equiv.):
   aleatória localizada 975 [867; 1052]; Nelder-Mead 166; Box 13 445;
-  Hooke-Jeeves 353; gradiente 60 900 / 3000 / - / 72 900 (não atinge
+  Hooke-Jeeves 430; gradiente 60 900 / 3000 / - / 72 900 (não atinge
   f < 1e-4 em 3000 it.); FR (reinício n) 718 / 34 / - / 854;
   Newton puro 6 / 5 / 5 / 46; Newton amortecido 281 / 12 / 12 / 377.
 
@@ -92,7 +92,7 @@ metodos = [
     ("Newton amortecido", 2, lambda C: newton_nd(C.F, C.G, C.H, X0, 1e-8, 200, damped=True, modify=True)),
 ]
 slides = {"Nelder-Mead": (166, 0, 0, 166), "Box (Delta_0 = 1)": (13445, 0, 0, 13445),
-          "Hooke-Jeeves (P_0 = 0.5)": (353, 0, 0, 353), "Gradiente": (60900, 3000, 0, 72900),
+          "Hooke-Jeeves (P_0 = 0.5)": (430, 0, 0, 430), "Gradiente": (60900, 3000, 0, 72900),
           "Grad. conj. (FR, reinício n)": (718, 34, 0, 854), "Newton puro": (6, 5, 5, 46),
           "Newton amortecido": (281, 12, 12, 377)}
 
@@ -144,7 +144,7 @@ print("            (a primeira f < 1e-4 surge numa pesquisa em linha; até aí o
 c2 = [nd[1] == 12 and nd[0] - nd[1] == 269, fr[1] == 34 and fr[0] - fr[1] == 684]
 print("  Newton: 269 + 12 = 281: %s | FR: 684 + 34 = 718: %s" % simnao(c2))
 
-print("\n  aleatória 975 [867; 1052], 30/30: %s | NM 166: %s | Box 13 445: %s | HJ 353: %s | gradiente 72 900: %s"
+print("\n  aleatória 975 [867; 1052], 30/30: %s | NM 166: %s | Box 13 445: %s | HJ 430: %s | gradiente 72 900: %s"
       " | FR 854: %s | Newton puro 46: %s | amortecido 377: %s" % simnao(linhas_ok))
 ok = ok and all(linhas_ok) and all(c2)
 
