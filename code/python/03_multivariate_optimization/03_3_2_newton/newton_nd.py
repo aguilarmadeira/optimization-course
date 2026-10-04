@@ -3,8 +3,9 @@
 Otimização — deck 3.3.2 (Método de Newton).
 Reproduz os exemplos dos slides: ver ex03_3_2_newton.py
 Implementação didática — algumas salvaguardas de software profissional
-não estão incluídas (p. ex. pesquisa em linha de Armijo/Wolfe a começar em
-alpha = 1; aqui o passo amortecido é o minimizante da linha).
+não estão incluídas (p. ex. a condição de Wolfe). Por omissão, o passo
+amortecido é o minimizante da linha; com ls="armijo", recuo alpha = 1, 1/2,
+1/4, ... até ao decréscimo suficiente de Armijo.
 
 Importa `line_search` de code/python/common/. Os exemplos ex*.py tratam do caminho
 (import uc_setup); fora deles, é preciso primeiro
@@ -70,7 +71,9 @@ def newton_nd(f, grad, hess, x0, tolg=1e-8, kmax=50, damped=False, modify=False,
              (Cholesky), usa H_k + mu I com mu = 1e-3 max(1, ||H_k||_F),
              10 mu, 100 mu, ... até ser definida positiva
     ls, lstol : pesquisa em linha do amortecido ("brent", tol 1e-10, a das
-             figuras; ou "fminbnd") -- ver line_search.py
+             figuras; ou "fminbnd") -- ver line_search.py; ou "armijo":
+             alpha = 1, 1/2, 1/4, ... até f(x + alpha d) <= f(x) + c1 alpha g^T d,
+             c1 = 1e-4 (o valor aceite é reaproveitado como f no novo iterando)
     verbose : se True, imprime a tabela das iterações
 
     Contagens: n_g = nit + 1, n_H = nit; n_f = f em cada iterando (x_0
@@ -113,13 +116,20 @@ def newton_nd(f, grad, hess, x0, tolg=1e-8, kmax=50, damped=False, modify=False,
         if damped:
             if _dot(g, d) >= 0:
                 d = -g; tipo = 2                  # salvaguarda: não é de descida
-            phi = lambda a: f(x + a * d)          # pesquisa em linha
-            alpha, nls, _ = line_search(phi, ls, lstol)
+            if ls == "armijo":                    # recuo até ao decréscimo suficiente
+                gd = _dot(g, d); alpha = 1.0; ft = f(x + d); nls = 1
+                while ft > fx + 1e-4 * alpha * gd and nls < 60:
+                    alpha /= 2; ft = f(x + alpha * d); nls += 1
+            else:
+                phi = lambda a: f(x + a * d)      # pesquisa em linha
+                alpha, nls, _ = line_search(phi, ls, lstol)
             nfev += nls; nfev_ls += nls
         else:
             alpha = 1.0                           # passo completo
         x = x + alpha * d
-        if temf:
+        if damped and ls == "armijo":
+            fx = ft                               # já avaliado no recuo
+        elif temf:
             fx = f(x); nfev += 1                  # f no novo iterando
         k += 1
         rows.append([k, *x, fx, np.nan, alpha, lmin, tipo])

@@ -20,7 +20,10 @@ function [x, fx, info] = NewtonND(f, grad, hess, x0, tolg, kmax, opts)
 %                 mu = 1e-3*max(1, norm(H_k,'fro')), 10 mu, 100 mu, ... até
 %                 ser definida positiva
 %       .ls       pesquisa em linha do amortecido: 'brent' (por omissão;
-%                 tol 1e-10, a das figuras) ou 'fminbnd' -- ver LineSearch
+%                 tol 1e-10, a das figuras) ou 'fminbnd' -- ver LineSearch;
+%                 ou 'armijo': alpha = 1, 1/2, 1/4, ... até
+%                 f(x + alpha*d) <= f(x) + c1*alpha*g'*d, c1 = 1e-4
+%                 (o valor aceite é reaproveitado como f no novo iterando)
 %       .lstol    tolerância da pesquisa em linha ([] = a de LineSearch)
 %       .verbose  (false) se true, imprime a tabela das iterações
 %
@@ -51,8 +54,9 @@ function [x, fx, info] = NewtonND(f, grad, hess, x0, tolg, kmax, opts)
 %   Otimização — deck 3.3.2 (Método de Newton).
 %   Reproduz os exemplos dos slides: ver ex03_3_2_newton.m
 %   Implementação didática — algumas salvaguardas de software profissional
-%   não estão incluídas (p. ex. pesquisa em linha de Armijo/Wolfe a começar
-%   em alpha = 1; aqui o passo amortecido é o minimizante da linha).
+%   não estão incluídas (p. ex. a condição de Wolfe). Por omissão, o passo
+%   amortecido é o minimizante da linha; com opts.ls = 'armijo', recuo
+%   alpha = 1, 1/2, 1/4, ... até ao decréscimo suficiente de Armijo.
 %
 %   J. F. A. Madeira — Licença MIT (ver LICENSE na raiz do repositório).
 
@@ -97,14 +101,25 @@ while true
     if g'*d >= 0
       d = -g;  tipo = 2;                       % salvaguarda
     end
-    phi = @(a) f(x + a*d);                     % pesquisa em linha
-    [alpha, nls] = LineSearch(phi, ls, lstol);
+    if strcmpi(ls, 'armijo')                   % recuo até ao decréscimo suficiente
+      gd = g'*d;  alpha = 1;  ft = f(x + d);  nls = 1;
+      while ft > fx + 1e-4*alpha*gd && nls < 60
+        alpha = alpha/2;  ft = f(x + alpha*d);  nls = nls + 1;
+      end
+    else
+      phi = @(a) f(x + a*d);                   % pesquisa em linha
+      [alpha, nls] = LineSearch(phi, ls, lstol);
+    end
     nfev = nfev + nls;  nfev_ls = nfev_ls + nls;
   else
     alpha = 1;                                 % passo completo
   end
   x = x + alpha*d;
-  if temf, fx = f(x); nfev = nfev + 1; end     % f no novo iterando
+  if damped && strcmpi(ls, 'armijo')
+    fx = ft;                                   % já avaliado no recuo
+  elseif temf
+    fx = f(x); nfev = nfev + 1;                % f no novo iterando
+  end
   k = k + 1;
   hist(k + 1, :) = [k, x', fx, NaN, alpha, lmin, tipo];
 end

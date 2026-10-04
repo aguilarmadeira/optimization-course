@@ -102,6 +102,26 @@ c = [r4.nit == 14, r4.ngev == 15, r4.nhev == 14]
 print("  14 it.: %s | n_g = 15: %s | n_H = 14: %s" % simnao(c))
 ok = ok and all(c)
 
+# ------------------------------------------------ Rosenbrock, amortecido com Armijo
+print("\nRosenbrock de (-1.5; 2), amortecido com recuo de Armijo (alpha = 1, 1/2, ...; c1 = 1e-4):")
+ra = newton_nd(rosen, grosen, Hrosen, xr, 1e-8, 50, damped=True, ls="armijo")
+Ha = ra.history
+x1 = Ha[1, 1:3]; g1 = grosen(x1); d1 = -np.linalg.solve(Hrosen(x1), g1); f1 = rosen(x1)
+print("k = 1: f(x1) = %.3f, g^T d = %.3f" % (f1, g1 @ d1))
+recuo = [(a, rosen(x1 + a * d1), f1 + 1e-4 * a * (g1 @ d1)) for a in (1, 0.5, 0.25, 0.125)]
+for a, fa, lim in recuo:
+    print("  alpha = %-6g f = %10.3f  limite de Armijo = %.3f  %s" % (a, fa, lim, "aceite" if fa <= lim else "rejeitado"))
+monoa = bool(np.all(np.diff(Ha[:, 3]) <= 0))
+ult = int(np.argmax(Ha[1:, 5][::-1] != 1)) if np.any(Ha[1:, 5] != 1) else ra.nit
+print("%s; n_g = %d, n_H = %d, n_f = %d; monótono: %s; alpha = 1 nas últimas %d iterações"
+      % (ra.message, ra.ngev, ra.nhev, ra.nfev, "sim" if monoa else "não", ult))
+c = [confere([r_[1] for r_ in recuo], [751.610, 49.736, 7.145, 5.238], 3), confere(f1, 6.008, 3),
+     [r_[1] <= r_[2] for r_ in recuo] == [False, False, False, True],
+     ra.nit == 22, ra.nfev == 29, monoa, ult == 7]
+print("  751,6 / 49,7 / 7,1 / 5,24: %s | f(x1) = 6,008: %s | aceita 1/8: %s | 22 it.: %s | n_f = 29: %s"
+      " | monótono: %s | últimas 7 com alpha = 1: %s" % simnao(c))
+ok = ok and all(c)
+
 # ------------------------------------------------ Himmelblau
 himmel = lambda x: (x[0]**2 + x[1] - 11)**2 + (x[0] + x[1]**2 - 7)**2
 ghimmel = lambda x: np.array([4 * x[0] * (x[0]**2 + x[1] - 11) + 2 * (x[0] + x[1]**2 - 7),
@@ -122,6 +142,15 @@ c = [np.allclose(lam0, [-42, -26]), rp.nit == 4, confere(rp.x, [-0.27, -0.92], 2
      bool(np.all(lamx < 0)), rd.history[1, 7] == 2, rd.nit == 5, np.allclose(rd.x, [3, 2])]
 print("  lambda(H0) = (-42; -26): %s | puro 4 it.: %s | (-0.27; -0.92): %s | f = 181.6: %s | máximo: %s"
       " | amortecido usa -g: %s | 5 it.: %s | (3, 2): %s" % simnao(c))
+ok = ok and all(c)
+
+ra = newton_nd(himmel, ghimmel, Hhimmel, xh, 1e-8, 50, damped=True, ls="armijo")
+rm = newton_nd(himmel, ghimmel, Hhimmel, xh, 1e-8, 50, damped=True, modify=True, ls="armijo")
+print("Com Armijo: -g na 1.ª iteração: %d it., n_f = %d; H + mu I: %d it., n_f = %d; ambos em (%.0f, %.0f)"
+      % (ra.nit, ra.nfev, rm.nit, rm.nfev, *rm.x))
+c = [ra.history[1, 7] == 2, ra.nit == 6, ra.nfev == 14, rm.history[1, 7] == 1, rm.nit == 8, rm.nfev == 10,
+     np.allclose(ra.x, [3, 2]), np.allclose(rm.x, [3, 2])]
+print("  -g: %s | 6 it.: %s | n_f = 14: %s | H + mu I: %s | 8 it.: %s | n_f = 10: %s | (3, 2): %s, %s" % simnao(c))
 ok = ok and all(c)
 
 print("\nconfere com os slides: %s" % ("sim" if ok else "não"))

@@ -87,6 +87,28 @@ c = [i4.nit == 14, i4.ngev == 15, i4.nhev == 14];
 fprintf('  14 it.: %s | n_g = 15: %s | n_H = 14: %s\n', simnao{c + 1});
 ok = ok && all(c);
 
+% ------------------------------------------------ Rosenbrock, amortecido com Armijo
+fprintf('\nRosenbrock de (-1.5; 2), amortecido com recuo de Armijo (alpha = 1, 1/2, ...; c1 = 1e-4):\n');
+[~, ~, ia] = NewtonND(rosen, grosen, Hrosen, xr, 1e-8, 50, struct('damped', true, 'ls', 'armijo'));
+Ha = ia.history;
+x1 = Ha(2, 2:3)';  g1 = grosen(x1);  d1 = -(Hrosen(x1) \ g1);  f1 = rosen(x1);
+fprintf('k = 1: f(x1) = %.3f, g''*d = %.3f\n', f1, g1'*d1);
+as = [1, 0.5, 0.25, 0.125];  fa = zeros(1, 4);  lim = zeros(1, 4);
+for i = 1:4
+  fa(i) = rosen(x1 + as(i)*d1);  lim(i) = f1 + 1e-4*as(i)*(g1'*d1);
+  est = {'rejeitado', 'aceite'};
+  fprintf('  alpha = %-6g f = %10.3f  limite de Armijo = %.3f  %s\n', as(i), fa(i), lim(i), est{(fa(i) <= lim(i)) + 1});
+end
+monoa = all(diff(Ha(:, 4)) <= 0);
+al = Ha(2:end, 6);  ult = find(flipud(al) ~= 1, 1) - 1;  if isempty(ult), ult = ia.nit; end
+fprintf('%s; n_g = %d, n_H = %d, n_f = %d; monótono: %s; alpha = 1 nas últimas %d iterações\n', ...
+        ia.message, ia.ngev, ia.nhev, ia.nfev, simnao{monoa + 1}, ult);
+c = [confere(fa, [751.610, 49.736, 7.145, 5.238], 3), confere(f1, 6.008, 3), ...
+     isequal(fa <= lim, [false false false true]), ia.nit == 22, ia.nfev == 29, monoa, ult == 7];
+fprintf(['  751,6 / 49,7 / 7,1 / 5,24: %s | f(x1) = 6,008: %s | aceita 1/8: %s | 22 it.: %s | n_f = 29: %s', ...
+         ' | monótono: %s | últimas 7 com alpha = 1: %s\n'], simnao{c + 1});
+ok = ok && all(c);
+
 % ------------------------------------------------ Himmelblau
 himmel = @(x) (x(1)^2 + x(2) - 11)^2 + (x(1) + x(2)^2 - 7)^2;
 ghimmel = @(x) [4*x(1)*(x(1)^2 + x(2) - 11) + 2*(x(1) + x(2)^2 - 7);
@@ -107,6 +129,15 @@ c = [all(abs(sort(lam0) - [-42; -26]) < 1e-12), ip.nit == 4, confere(xp, [-0.27;
      confere(fp, 181.6, 1), all(lamx < 0), id.history(2, 8) == 2, id.nit == 5, all(abs(xd - [3; 2]) < 1e-8)];
 fprintf(['  lambda(H0) = (-42; -26): %s | puro 4 it.: %s | (-0.27; -0.92): %s | f = 181.6: %s | máximo: %s', ...
          ' | amortecido usa -g: %s | 5 it.: %s | (3, 2): %s\n'], simnao{c + 1});
+ok = ok && all(c);
+
+[xa, ~, ja] = NewtonND(himmel, ghimmel, Hhimmel, xh, 1e-8, 50, struct('damped', true, 'ls', 'armijo'));
+[xm, ~, jm] = NewtonND(himmel, ghimmel, Hhimmel, xh, 1e-8, 50, struct('damped', true, 'modify', true, 'ls', 'armijo'));
+fprintf('Com Armijo: -g na 1.ª iteração: %d it., n_f = %d; H + mu I: %d it., n_f = %d; ambos em (%.0f, %.0f)\n', ...
+        ja.nit, ja.nfev, jm.nit, jm.nfev, xm);
+c = [ja.history(2, 8) == 2, ja.nit == 6, ja.nfev == 14, jm.history(2, 8) == 1, jm.nit == 8, jm.nfev == 10, ...
+     all(abs(xa - [3; 2]) < 1e-8), all(abs(xm - [3; 2]) < 1e-8)];
+fprintf('  -g: %s | 6 it.: %s | n_f = 14: %s | H + mu I: %s | 8 it.: %s | n_f = 10: %s | (3, 2): %s, %s\n', simnao{c + 1});
 ok = ok && all(c);
 
 fprintf('\nconfere com os slides: %s\n', simnao{ok + 1});
