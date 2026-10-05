@@ -9,6 +9,7 @@ Author: **José Firmino Aguilar Madeira** · ORCID [0000-0001-9523-3808](https:/
 ## Course map
 
 Every topic of the course, in order. **view** opens the slides on GitHub; **download** saves the PDF.
+To open a link in a new tab: Ctrl+click (⌘+click on a Mac) or middle-click.
 The English slides are a faithful translation of the Portuguese ones (same slides, examples and numbers; decimal point instead of decimal comma).
 
 ### Course information
@@ -27,7 +28,7 @@ The English slides are a faithful translation of the Portuguese ones (same slide
 
 ### 2 · Univariate optimization
 
-All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/02_univariate_optimization.ipynb)
+All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/02_univariate_optimization.ipynb) · all MATLAB examples (MathWorks account): [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=aguilarmadeira/optimization-course&file=code/matlab/02_univariate_optimization/ex02_capitulo.m)
 
 | | Topic | Slides (English) | Slides (Portuguese) | Code |
 |---|---|---|---|---|
@@ -40,7 +41,9 @@ All Python examples of this chapter in one Colab notebook: [![Open In Colab](htt
 
 ### 3 · Unconstrained multivariate optimization
 
-All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/03_multivariate_optimization.ipynb)
+All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/03_multivariate_optimization.ipynb) · all MATLAB examples (MathWorks account): [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=aguilarmadeira/optimization-course&file=code/matlab/03_multivariate_optimization/ex03_capitulo.m)
+
+**Toolboxes:** `ex03_3_comparison` uses `fminunc` (Optimization Toolbox) only in an informative part, protected by `try`/`catch`: without the toolbox it prints a notice and the example still runs to the end.
 
 | | Topic | Slides (English) | Slides (Portuguese) | Code |
 |---|---|---|---|---|
@@ -58,7 +61,9 @@ All Python examples of this chapter in one Colab notebook: [![Open In Colab](htt
 
 ### 4 · Constrained optimization
 
-All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/04_constrained_optimization.ipynb)
+All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/04_constrained_optimization.ipynb) · all MATLAB examples (MathWorks account): [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=aguilarmadeira/optimization-course&file=code/matlab/04_constrained_optimization/ex04_capitulo.m)
+
+**Toolboxes:** `ex04_1_lagrange` and `ex04_2_kkt` use `fmincon` (and 4.2 also `linprog`), from the Optimization Toolbox (in GNU Octave: `sqp` and `glpk`). In MATLAB Online these examples run only if your licence includes the toolbox; otherwise the chapter script says which example did not run and carries on.
 
 | | Topic | Slides (English) | Slides (Portuguese) | Code |
 |---|---|---|---|---|
@@ -70,7 +75,7 @@ All Python examples of this chapter in one Colab notebook: [![Open In Colab](htt
 
 ### 5 · Global optimization
 
-All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/05_global_optimization.ipynb)
+All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/05_global_optimization.ipynb) · all MATLAB examples (MathWorks account): [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=aguilarmadeira/optimization-course&file=code/matlab/05_global_optimization/ex05_capitulo.m)
 
 | | Topic | Slides (English) | Slides (Portuguese) | Code |
 |---|---|---|---|---|
@@ -80,7 +85,9 @@ All Python examples of this chapter in one Colab notebook: [![Open In Colab](htt
 
 ### 6 · Multiobjective optimization
 
-All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/06_multiobjective_optimization.ipynb)
+All Python examples of this chapter in one Colab notebook: [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aguilarmadeira/optimization-course/blob/main/code/python/notebooks/06_multiobjective_optimization.ipynb) · all MATLAB examples (MathWorks account): [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=aguilarmadeira/optimization-course&file=code/matlab/06_multiobjective_optimization/ex06_capitulo.m)
+
+**Toolboxes:** `ex06_3_aggregation` and `ex06_4_epsilon_constraint` use `fmincon` (Optimization Toolbox; in GNU Octave: `sqp`); `ex06_6_gamultiobj` uses `gamultiobj` (Global Optimization Toolbox) and, without it, only prints a notice. In MATLAB Online these examples run only if your licence includes the toolbox; otherwise the chapter script says which example did not run and carries on.
 
 | | Topic | Slides (English) | Slides (Portuguese) | Code |
 |---|---|---|---|---|
@@ -101,6 +108,7 @@ All Python examples of this chapter in one Colab notebook: [![Open In Colab](htt
 
 - **MATLAB / Python:** one folder per method, numbered as the deck. Each folder has the function and an example `ex…` that reproduces the numbers on the slides and ends with *confere com os slides: sim* ("matches the slides: yes").
 - **Colab:** nothing to install. **Colab** in the table opens the example of that method; the button at the top of each chapter opens all the examples of the chapter.
+- **MATLAB Online:** the button at the top of each chapter opens the repository in MATLAB Online and the script that runs all the MATLAB examples of the chapter (MathWorks account required; see [`code/README.md`](code/README.md)). Without an account, download `code/matlab/` and run it in MATLAB or GNU Octave.
 - Clone the whole repository: the folders depend on each other. Details (shared utilities, `uc_setup` to use the functions in your own scripts) in [`code/README.md`](code/README.md).
 - Code comments and printed messages are in Portuguese.
 - The research codes GLODS (5.1) and DMS (6.5) are not included; they are distributed in class.
