@@ -7,6 +7,8 @@ Estado: **disponível**.
 - Exemplo: `ex03_3_3_conjugate_gradients.py`, que reproduz os números do deck 3.3.3 (os mesmos que o exemplo MATLAB).
 - Apontamentos: `notes/pt/` (deck 3.3.3). A tabela comparativa do fim do capítulo está em `../03_3_comparison/`.
 
+**Notação.** Nos slides e nas aulas: S_k é a direção de pesquisa (no código, `d`), λ_k o comprimento do passo (no código, `alpha`) e ∇f_k o gradiente em x_k (no código, `g`).
+
 ## Como correr
 
 Só precisa de `numpy`. Na pasta desta secção:
@@ -27,7 +29,7 @@ A tabela das iterações na quadrática ½(x₁² + 9x₂²) a partir de (9,1) (
 - Última linha: `confere com os slides: sim`.
 
 **Reinícios** (os testes 1 e 2 do slide): d = −g quando mod(k+1, n) = 0 (`restart`, por omissão n; 0 desliga) ou quando gᵀd ≥ 0 (sempre ativo). `nrestart` conta-os.
-**Contagens.** `ngev = nit + 1`; `nfev` = avaliações das pesquisas em linha (no modo `"brent"` cada pesquisa volta a avaliar φ(0) = f(x_k)) + f em cada iterando (x₀ incluído); `nfev_ls` = só as das pesquisas; `nhev = 0`.
+**Contagens.** `ngev = nit + 1`; `nfev` = avaliações das pesquisas em linha (no modo `"brent"` cada pesquisa volta a avaliar φ(0) = f(x_k)) + f em cada iterada (x₀ incluído); `nfev_ls` = só as das pesquisas; `nhev = 0`.
 `history`: uma linha por k = 0..nit, `[k, x_k, f(x_k), ||g_k||, alpha_{k-1}, beta_k, d_k]` (β e d da última linha não são calculados: nan).
 Os produtos internos gᵀg e gᵀd escrevem-se como soma dos produtos (`_dot`), a mesma ordem de operações que `g'*g` no MATLAB/Octave; com `@` (BLAS) o último bit pode mudar e, num percurso longo como o FR sem reinício, alterar as contagens da pesquisa em linha.
 O resultado tem os campos `x`, `fx`, `nit`, `nfev`, `ngev`, `nhev`, `history`, `flag` (e `message`, `nfev_ls`, `nrestart`), com as mesmas contagens que a versão MATLAB.

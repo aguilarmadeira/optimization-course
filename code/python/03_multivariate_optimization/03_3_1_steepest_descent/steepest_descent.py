@@ -22,10 +22,10 @@ from line_search import line_search
 @dataclass
 class SDResult:
     """Resultado de `steepest_descent` (os mesmos campos que `info` no MATLAB)."""
-    x: np.ndarray             # último iterando x_k
+    x: np.ndarray             # última iterada x_k
     fx: float                 # f(x_k)
     nit: int                  # iterações (passos) feitas
-    nfev: int                 # avaliações de f: pesquisas em linha + f nos iterandos (+ 2n por gradiente numérico)
+    nfev: int                 # avaliações de f: pesquisas em linha + f nas iteradas (+ 2n por gradiente numérico)
     ngev: int                 # gradientes analíticos (0 se numérico)
     nhev: int = 0             # o método não usa a Hessiana
     nfev_ls: int = 0          # avaliações de f só nas pesquisas em linha
@@ -38,6 +38,9 @@ class SDResult:
 def steepest_descent(f, grad, x0, tolg=1e-6, kmax=1000, tolx=0.0, ls="brent",
                      lstol=None, verbose=False):
     """Método do gradiente: x_{k+1} = x_k - alpha_k g_k, alpha_k por pesquisa em linha.
+
+    Notação das aulas e dos slides: S_k = direção (aqui d), lambda_k =
+    comprimento do passo (aqui alpha), grad f_k = gradiente (aqui g).
 
     Parâmetros
     ----------
@@ -56,14 +59,14 @@ def steepest_descent(f, grad, x0, tolg=1e-6, kmax=1000, tolx=0.0, ls="brent",
 
     Contagens: n_g = nit + 1 (um gradiente por iteração mais o de paragem);
     n_f = avaliações das pesquisas em linha (cada uma volta a avaliar
-    phi(0) = f(x_k) no modo "brent") + f em cada iterando (x_0 incluído).
+    phi(0) = f(x_k) no modo "brent") + f em cada iterada (x_0 incluído).
     history tem uma linha por k = 0, ..., nit:
     [k, x_k (n colunas), f(x_k), ||g_k||, alpha_{k-1}]  (nan se não calculado).
     """
     x = np.array(x0, float).ravel()
     n = x.size
     nfev = 0; ngev = 0; nfev_ls = 0
-    fx = f(x); nfev += 1                     # f no iterando x_0
+    fx = f(x); nfev += 1                     # f na iterada x_0
     rows = [[0, *x, fx, np.nan, np.nan]]
     flag = 1
     k = 0
@@ -83,7 +86,7 @@ def steepest_descent(f, grad, x0, tolg=1e-6, kmax=1000, tolx=0.0, ls="brent",
         alpha, nls, _ = line_search(phi, ls, lstol)
         nfev += nls; nfev_ls += nls
         xn = x + alpha * d
-        fx = f(xn); nfev += 1                     # f no novo iterando
+        fx = f(xn); nfev += 1                     # f na nova iterada
         passo = np.linalg.norm(xn - x) / max(1.0, np.linalg.norm(x))
         x = xn; k += 1
         rows.append([k, *x, fx, np.nan, alpha])

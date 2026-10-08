@@ -55,7 +55,7 @@ end
 fprintf('...\n');
 fprintf('%4d  (%9.2e; %9.2e) %12.2e %10.2e %9.4f\n', H(end, :));
 razao = H(2:end, 4)./H(1:end-1, 4);
-fprintf('%s: %d iterações, n_g = %d, n_f = %d (%d nas pesquisas em linha + %d iterandos)\n', ...
+fprintf('%s: %d iterações, n_g = %d, n_f = %d (%d nas pesquisas em linha + %d iteradas)\n', ...
         info.message, info.nit, info.ngev, info.nfev, info.nfev_ls, info.nit + 1);
 fprintf('média de %.1f avaliações de f por pesquisa em linha (o slide diz «cerca de 24»)\n', info.nfev_ls/info.nit);
 fprintf('f_{k+1}/f_k: mín. %.4f, máx. %.4f (cota de Kantorovich ((9-1)/(9+1))^2 = 0.64)\n', min(razao), max(razao));
@@ -88,7 +88,7 @@ ok = ok && all(c);
 % ------------------------------------------------ gradiente numérico
 [~, ~, in] = SteepestDescent(f, [], x0, tolg, 1000);
 fprintf('\nCom gradiente numérico (grad = []: GradFD, 2n = 4 avaliações de f por gradiente):\n');
-fprintf('%d iterações, n_g = %d, n_f = %d = %d (pesquisas) + %d (iterandos) + 4 x %d (gradientes)\n', ...
+fprintf('%d iterações, n_g = %d, n_f = %d = %d (pesquisas) + %d (iteradas) + 4 x %d (gradientes)\n', ...
         in.nit, in.ngev, in.nfev, in.nfev_ls, in.nit + 1, in.nit + 1);
 c = [in.nit == 74, in.ngev == 0, in.nfev == in.nfev_ls + (in.nit + 1) + 4*(in.nit + 1)];
 fprintf('  74 it.: %s | n_g = 0: %s | 2n por gradiente em n_f: %s\n', simnao{c + 1});

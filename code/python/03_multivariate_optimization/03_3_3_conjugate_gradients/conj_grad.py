@@ -27,10 +27,10 @@ def _dot(a, b):
 @dataclass
 class CGResult:
     """Resultado de `conj_grad` (os mesmos campos que `info` no MATLAB)."""
-    x: np.ndarray             # último iterando x_k
+    x: np.ndarray             # última iterada x_k
     fx: float                 # f(x_k)
     nit: int                  # iterações feitas
-    nfev: int                 # avaliações de f: pesquisas em linha + f nos iterandos
+    nfev: int                 # avaliações de f: pesquisas em linha + f nas iteradas
     ngev: int                 # gradientes: nit + 1
     nhev: int = 0             # o método não usa a Hessiana
     nfev_ls: int = 0          # avaliações de f só nas pesquisas em linha
@@ -45,6 +45,9 @@ def conj_grad(f, grad, x0, tolg=1e-6, kmax=1000, restart=None, ls="brent",
               lstol=None, verbose=False):
     """Fletcher-Reeves: d_0 = -g_0, d_{k+1} = -g_{k+1} + beta_{k+1} d_k,
     beta_{k+1} = ||g_{k+1}||^2 / ||g_k||^2.
+
+    Notação das aulas e dos slides: S_k = direção (aqui d), lambda_k =
+    comprimento do passo (aqui alpha), grad f_k = gradiente (aqui g).
 
     Parâmetros
     ----------
@@ -63,7 +66,7 @@ def conj_grad(f, grad, x0, tolg=1e-6, kmax=1000, restart=None, ls="brent",
 
     Contagens: n_g = nit + 1; n_f = avaliações das pesquisas em linha (cada
     uma volta a avaliar phi(0) = f(x_k) no modo "brent") + f em cada
-    iterando (x_0 incluído).
+    iterada (x_0 incluído).
     history tem uma linha por k = 0, ..., nit:
     [k, x_k (n colunas), f(x_k), ||g_k||, alpha_{k-1}, beta_k, d_k (n colunas)]
     (beta_k e d_k da última linha não são calculados: nan).
@@ -73,7 +76,7 @@ def conj_grad(f, grad, x0, tolg=1e-6, kmax=1000, restart=None, ls="brent",
     if restart is None:
         restart = n
     nfev = ngev = nfev_ls = nrestart = 0
-    fx = f(x); nfev += 1                          # f no iterando x_0
+    fx = f(x); nfev += 1                          # f na iterada x_0
     rows = []
     # --- núcleo (o dos slides, com as contagens) ---------------------------
     g = np.asarray(grad(x), float).ravel(); ngev += 1
@@ -86,7 +89,7 @@ def conj_grad(f, grad, x0, tolg=1e-6, kmax=1000, restart=None, ls="brent",
         alpha, nls, _ = line_search(phi, ls, lstol)
         nfev += nls; nfev_ls += nls
         x = x + alpha * d
-        fx = f(x); nfev += 1                      # f no novo iterando
+        fx = f(x); nfev += 1                      # f na nova iterada
         gn = np.asarray(grad(x), float).ravel(); ngev += 1
         rows.append([k + 1, *x, fx, np.linalg.norm(gn), alpha, np.nan, *np.full(n, np.nan)])
         if np.linalg.norm(gn) <= tolg:

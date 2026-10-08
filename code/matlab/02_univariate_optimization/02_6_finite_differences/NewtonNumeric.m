@@ -19,7 +19,7 @@ function [x, fx, info] = NewtonNumeric(f, x0, tolg, kmax, hrel, verbose)
 %     verbose  (opcional, false) se true, imprime a tabela das iterações
 %
 %   Saídas
-%     x        último iterando x_{k+1}
+%     x        última iterada x_{k+1}
 %     fx       f(x)
 %     info     estrutura com
 %       .nfev      avaliações de f: 3 por iteração + 1 (f(x) no fim)

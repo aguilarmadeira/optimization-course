@@ -1,10 +1,24 @@
 """Método de Hooke–Jeeves (pesquisa em padrão), sem derivadas.
 
-Alterna o movimento exploratório (exploratory.py, eixo a eixo: avalia +-P_j e
-fica com o melhor, como em Deb, 2012) com o
-movimento de padrão xt = xb + a (xe - xb), seguido de nova exploração em
-torno de xt. Se a exploração em torno de xb falha, P <- P/2 (P só diminui:
-não é reposto em P0 a cada sucesso). Para quando todos os P_j < T_j.
+Alterna o movimento exploratório (exploratory.py, eixo a eixo: avalia +-Delta_j
+e fica com o melhor dos três pontos, como em Deb, 2012) com o movimento de
+padrão X^P_{k+1} = X_k + (X_k - X_{k-1}) = 2 X_k - X_{k-1} (a = 2), seguido de
+nova exploração em torno de X^P_{k+1}.
+
+Duas variantes (parâmetro variante):
+  * "deb" (por omissão; a das aulas, Deb, 2012, sec. 3.3.3):
+      passo 2  explorar em torno de X_k; se melhorar, X_{k+1} = resultado, passo 4;
+               senão, passo 3;
+      passo 3  se ||Delta|| < eps, parar; senão Delta = Delta/R e voltar ao passo 2;
+      passo 4  padrão X^P_{k+1} = 2 X_k - X_{k-1};
+      passo 5  explorar em torno de X^P_{k+1}; o resultado é X_{k+1};
+      passo 6  se f(X_{k+1}) < f(X_k), voltar ao passo 4; senão, passo 3
+               (com X_k como ponto base).
+    Aqui T é eps (um escalar) e R o fator de redução (2 por omissão).
+  * "1961" (Hooke e Jeeves, 1961): quando o padrão falha, recua-se para X_k e
+    explora-se de novo com o mesmo Delta; Delta só se divide por 2 quando a
+    exploração em torno da base falha; pára quando todos os Delta_j < T_j.
+Em ambas, Delta só diminui (não é reposto em Delta_0 a cada sucesso).
 
 Otimização — deck 3.2.5 (Método de Hooke–Jeeves).
 Reproduz os exemplos dos slides: ver ex03_2_5_hooke_jeeves.py
@@ -39,22 +53,26 @@ class HookeJeevesResult:
     message: str = ""
 
 
-def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None):
-    """Hooke–Jeeves a partir de x0, com fator a, perturbações P0 e tolerâncias T.
+def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None, variante="deb", R=2.0):
+    """Hooke–Jeeves a partir de x0, com fator a, passos iniciais P0 (Delta_0) e tolerância T.
 
     Parâmetros
     ----------
     f : função de um vetor x (array de dimensão n)
     x0 : ponto inicial
     a : fator do movimento de padrão (tipicamente 2); None = 2
-    P0 : perturbações iniciais, uma por coordenada (escalar = igual em todas)
-    T : tolerâncias, uma por coordenada (escalar = igual em todas)
+    P0 : passos iniciais Delta_0, um por coordenada (escalar = igual em todas)
+    T : variante "deb": eps (escalar), pára quando ||Delta|| < eps;
+        variante "1961": tolerâncias, uma por coordenada (escalar = igual em
+        todas), pára quando todos os Delta_j < T_j
     kmax : número máximo de movimentos (explorações a partir da base +
         movimentos de padrão)
     verbose : se True, imprime uma linha por movimento
     menor : (opcional) função menor(u, v) que diz se o valor u é melhor do que
         v; por omissão, u < v (ver exploratory; deck 4.3.3, regra de
         admissibilidade, com f a devolver o par (v(x), f(x)))
+    variante : "deb" (por omissão, a das aulas) ou "1961" (ver o cabeçalho)
+    R : fator de redução de Delta na variante "deb" (2)
 
     Devolve
     -------
@@ -66,18 +84,27 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None):
     tipo = 1: padrão a partir da base xb, com ponto tentativo xt e exploração
     em torno de xt até xe', nas colunas xe, f(xe), f_ref = f(xe) anterior;
     sucesso = 1 se f(xe) < f_ref; nfev acumulado); ftrace com os valores de f
-    pela ordem em que foram avaliados; flag = 0 se todos os P_j < T_j, 1 se
-    atingiu kmax.
+    pela ordem em que foram avaliados; flag = 0 se parou pelo critério de
+    paragem, 1 se atingiu kmax.
     """
     if a is None:
         a = 2.0
+    if variante not in ("deb", "1961"):
+        raise ValueError('hooke_jeeves: variante tem de ser "deb" ou "1961".')
+    deb = variante == "deb"
     if menor is None:
         menor = lambda u, v: u < v        # a ordem habitual
     reg = lambda y: y[-1] if np.ndim(y) else y   # valor registado
     xb = np.array(x0, dtype=float).ravel()
     n = xb.size
     P = np.array(P0, dtype=float).ravel() * np.ones(n)
-    T = np.array(T, dtype=float).ravel() * np.ones(n)
+    if deb:
+        if np.size(T) != 1:
+            raise ValueError('hooke_jeeves: na variante "deb", T é eps (um escalar).')
+        eps = float(np.ravel(T)[0])
+        T = np.full(n, eps)
+    else:
+        T = np.array(T, dtype=float).ravel() * np.ones(n)
     if np.any(P <= 0) or np.any(T <= 0):
         raise ValueError("hooke_jeeves: P0 e T têm de ser positivos.")
 
@@ -89,17 +116,23 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None):
     xe, fe = xb.copy(), fb
     nan = [np.nan] * n
 
-    while m < kmax:                       # arranque / reinício
-        r = exploratory(f, xb, fb, P, menor)   # exploração em torno de xb
+    while m < kmax:                       # passo 2: exploração em torno da base xb (= X_k)
+        r = exploratory(f, xb, fb, P, menor)
         xe, fe = r.x, r.fx
         nfev += r.nfev; ftrace.extend(r.ftrace)
         m += 1
         hist.append([m, 0, *xb, *nan, np.nan, *xe, reg(fe), reg(fb), *P, menor(fe, fb), nfev])
-        if not menor(fe, fb):             # falhou (fe >= fb)
-            P = P / 2
-            if np.all(P < T):
-                flag = 0
-                break
+        if not menor(fe, fb):             # falhou (fe >= fb): passo 3
+            if deb:
+                if np.linalg.norm(P) < eps:
+                    flag = 0
+                    break
+                P = P / R
+            else:
+                P = P / 2
+                if np.all(P < T):
+                    flag = 0
+                    break
         else:
             while m < kmax:               # movimentos de padrão
                 xt = xb + a * (xe - xb); ft = f(xt)          # padrão: ponto tentativo
@@ -109,12 +142,19 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None):
                 nfev += r.nfev; ftrace.extend(r.ftrace)
                 m += 1
                 hist.append([m, 1, *xb, *xt, reg(ft), *xn, reg(fn), reg(fe), *P, menor(fn, fe), nfev])
-                if not menor(fn, fe):     # rejeitado (fn >= fe): recuar para xe e reiniciar
+                if not menor(fn, fe):     # rejeitado (fn >= fe): recuar para xe (= X_k)
                     xb, fb = xe, fe
+                    if deb:               # passo 3 logo a seguir
+                        if np.linalg.norm(P) < eps:
+                            flag = 0
+                        else:
+                            P = P / R
                     break
                 else:                     # aceite: continuar o padrão
                     xb, fb = xe, fe
                     xe, fe = xn, fn
+            if flag == 0:
+                break
     if menor(fe, fb):                     # saiu por kmax a meio de um padrão aceite
         xb, fb = xe, fe
     x, fx = xb, fb
@@ -126,7 +166,10 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None):
     hist = np.array(hist, dtype=float).reshape(-1, 4 * n + 7)
 
     if flag == 0:
-        message = "todos os P_j < T_j (max P_j = %.3g) ao fim de %d movimentos" % (P.max(), m)
+        if deb:
+            message = "||Delta|| = %.3g < eps = %.3g ao fim de %d movimentos" % (np.linalg.norm(P), eps, m)
+        else:
+            message = "todos os P_j < T_j (max P_j = %.3g) ao fim de %d movimentos" % (P.max(), m)
     else:
         message = "atingiu kmax = %d movimentos (max P_j = %.3g)" % (kmax, P.max())
 
@@ -148,7 +191,7 @@ def hooke_jeeves(f, x0, a, P0, T, kmax=10000, verbose=False, menor=None):
             s += "".join("%9.4f" % v for v in h[3 + 2 * n:3 + 3 * n]) + "%10.4f" % h[3 + 3 * n]
             s += "".join("%9.4f" % v for v in h[5 + 3 * n:5 + 4 * n])
             if tipo == 0:
-                res = "melhora" if h[5 + 4 * n] else "falha:P/2"
+                res = "melhora" if h[5 + 4 * n] else ("falha" if deb else "falha:P/2")
             else:
                 res = "aceite" if h[5 + 4 * n] else "rejeitado"
             print(s + "  %-10s %5d" % (res, h[6 + 4 * n]))

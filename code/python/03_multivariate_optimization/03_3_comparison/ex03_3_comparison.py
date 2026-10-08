@@ -3,8 +3,8 @@ avaliações» do fim do capítulo 3 (deck 3.3.3), com as funções da UC.
 
 Regras (folha de convenções da UC):
 * mesmo problema (Rosenbrock, fg.py), mesmo ponto inicial x0 = (-1.5; 2),
-  mesmo critério: custo até à PRIMEIRA avaliação de f com f < 1e-4 (f nos
-  iterandos dos métodos com derivadas também conta em n_f);
+  mesmo critério: custo até à PRIMEIRA avaliação de f com f < 1e-4 (f nas
+  iteradas dos métodos com derivadas também conta em n_f);
 * custo em avaliações contadas à parte, n_f, n_g, n_H; equivalente em f com
   derivadas centrais (n = 2): n_f + 4 n_g + 4 n_H (a Hessiana, 2n^2+1 = 9
   pontos, reaproveita os 4 do gradiente e f(x_k));
@@ -13,8 +13,8 @@ Regras (folha de convenções da UC):
   (numpy.random.default_rng), mediana [quartis].
 
 Valores dos slides (n_f / n_g / n_H / equiv.):
-  aleatória localizada 975 [867; 1052]; Nelder-Mead 166; Box 13 445;
-  Hooke-Jeeves 430; gradiente 60 900 / 3000 / - / 72 900 (não atinge
+  aleatória localizada 975 [867; 1052]; Nelder-Mead 244; Box 13 445;
+  Hooke-Jeeves 627; gradiente 60 900 / 3000 / - / 72 900 (não atinge
   f < 1e-4 em 3000 it.); FR (reinício n) 718 / 34 / - / 854;
   Newton puro 6 / 5 / 5 / 46; Newton amortecido 281 / 12 / 12 / 377.
 
@@ -83,16 +83,16 @@ print("Otimização — capítulo 3: os métodos estudados no mesmo problema (Ro
 print("Critério: primeira avaliação com f < %g; custo equivalente em f = n_f + 4 n_g + 4 n_H" % FTOL)
 
 metodos = [
-    ("Nelder-Mead", 0, lambda C: nelder_mead(C.F, [X0, X0 + [0.5, 0], X0 + [0, 0.5]], 1e-8, 1e-10, 1000)),
+    ("Nelder-Mead", 0, lambda C: nelder_mead(C.F, [X0, X0 + [0.5, 0], X0 + [0, 0.5]], eps=1e-6)),   # versão das aulas (análise do erro Q)
     ("Box (Delta_0 = 1)", 0, lambda C: box_evo(C.F, X0, [1, 1], 1e-6, 10000)),
-    ("Hooke-Jeeves (P_0 = 0.5)", 0, lambda C: hooke_jeeves(C.F, X0, 2, 0.5, 1e-6, 100000)),
+    ("Hooke-Jeeves (Delta = 0.5)", 0, lambda C: hooke_jeeves(C.F, X0, 2, 0.5, 1e-6, 100000)),   # versão das aulas (Deb)
     ("Gradiente", 1, lambda C: steepest_descent(C.F, C.G, X0, 1e-8, 3000)),
     ("Grad. conj. (FR, reinício n)", 1, lambda C: conj_grad(C.F, C.G, X0, 1e-8, 3000)),
     ("Newton puro", 2, lambda C: newton_nd(C.F, C.G, C.H, X0, 1e-8, 200)),
     ("Newton amortecido", 2, lambda C: newton_nd(C.F, C.G, C.H, X0, 1e-8, 200, damped=True, modify=True)),
 ]
-slides = {"Nelder-Mead": (166, 0, 0, 166), "Box (Delta_0 = 1)": (13445, 0, 0, 13445),
-          "Hooke-Jeeves (P_0 = 0.5)": (430, 0, 0, 430), "Gradiente": (60900, 3000, 0, 72900),
+slides = {"Nelder-Mead": (244, 0, 0, 244), "Box (Delta_0 = 1)": (13445, 0, 0, 13445),
+          "Hooke-Jeeves (Delta = 0.5)": (627, 0, 0, 627), "Gradiente": (60900, 3000, 0, 72900),
           "Grad. conj. (FR, reinício n)": (718, 34, 0, 854), "Newton puro": (6, 5, 5, 46),
           "Newton amortecido": (281, 12, 12, 377)}
 
@@ -136,15 +136,15 @@ print("‡ não atinge f < 1e-4 em 3000 iterações (f = %.1e); custo total da c
       % resultados["Gradiente"][4].fx)
 
 nd = resultados["Newton amortecido"]; fr = resultados["Grad. conj. (FR, reinício n)"]
-print("\nDeck 3.3.3: até f < 1e-4, Newton amortecido n_g = n_H = %d, n_f = %d na pesquisa em linha (%d com f nos iterandos);"
+print("\nDeck 3.3.3: até f < 1e-4, Newton amortecido n_g = n_H = %d, n_f = %d na pesquisa em linha (%d com f nas iteradas);"
       % (nd[1], nd[0] - nd[1], nd[0]))
 print("            FR n_g = %d, n_f = %d na pesquisa em linha (%d)."
       % (fr[1], fr[0] - fr[1], fr[0]))
-print("            (a primeira f < 1e-4 surge numa pesquisa em linha; até aí os iterandos avaliados são tantos quantos os gradientes)")
+print("            (a primeira f < 1e-4 surge numa pesquisa em linha; até aí as iteradas avaliadas são tantas quantos os gradientes)")
 c2 = [nd[1] == 12 and nd[0] - nd[1] == 269, fr[1] == 34 and fr[0] - fr[1] == 684]
 print("  Newton: 269 + 12 = 281: %s | FR: 684 + 34 = 718: %s" % simnao(c2))
 
-print("\n  aleatória 975 [867; 1052], 30/30: %s | NM 166: %s | Box 13 445: %s | HJ 430: %s | gradiente 72 900: %s"
+print("\n  aleatória 975 [867; 1052], 30/30: %s | NM 244: %s | Box 13 445: %s | HJ 627: %s | gradiente 72 900: %s"
       " | FR 854: %s | Newton puro 46: %s | amortecido 377: %s" % simnao(linhas_ok))
 ok = ok and all(linhas_ok) and all(c2)
 

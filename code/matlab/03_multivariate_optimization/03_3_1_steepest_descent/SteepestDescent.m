@@ -6,6 +6,9 @@ function [x, fx, info] = SteepestDescent(f, grad, x0, tolg, kmax, opts)
 %
 %   x_{k+1} = x_k - alpha_k g_k, com alpha_k da pesquisa em linha (cap. 2).
 %
+%   Notação das aulas e dos slides: S_k = direção (aqui d), lambda_k =
+%   comprimento do passo (aqui alpha), grad f_k = gradiente (aqui g).
+%
 %   Entradas
 %     f      função (handle) de R^n em R
 %     grad   gradiente de f (handle que devolve um vetor); [] usa GradFD
@@ -23,12 +26,12 @@ function [x, fx, info] = SteepestDescent(f, grad, x0, tolg, kmax, opts)
 %       .verbose  (false) se true, imprime a tabela das iterações
 %
 %   Saídas
-%     x      último iterando x_k
+%     x      última iterada x_k
 %     fx     f(x_k)
 %     info   estrutura com
 %       .nfev     avaliações de f: pesquisas em linha (cada uma volta a
 %                 avaliar phi(0) = f(x_k) no modo 'brent') + f em cada
-%                 iterando (x_0 incluído) (+ 2n por gradiente numérico)
+%                 iterada (x_0 incluído) (+ 2n por gradiente numérico)
 %       .nfev_ls  avaliações de f só nas pesquisas em linha
 %       .ngev     gradientes: nit + 1 (0 se numérico)
 %       .nhev     0 (o método não usa a Hessiana)
@@ -59,7 +62,7 @@ verbose = campo(opts, 'verbose', false);
 x = x0(:);
 n = numel(x);
 nfev = 0;  ngev = 0;  nfev_ls = 0;
-fx = f(x);  nfev = nfev + 1;             % f no iterando x_0
+fx = f(x);  nfev = nfev + 1;             % f na iterada x_0
 hist = [0, x', fx, NaN, NaN];
 flag = 1;
 k = 0;
@@ -79,7 +82,7 @@ while true
   [alpha, nls] = LineSearch(phi, ls, lstol);
   nfev = nfev + nls;  nfev_ls = nfev_ls + nls;
   xn = x + alpha*d;
-  fx = f(xn);  nfev = nfev + 1;                  % f no novo iterando
+  fx = f(xn);  nfev = nfev + 1;                  % f na nova iterada
   passo = norm(xn - x)/max(1, norm(x));
   x = xn;  k = k + 1;
   hist(k + 1, :) = [k, x', fx, NaN, alpha];

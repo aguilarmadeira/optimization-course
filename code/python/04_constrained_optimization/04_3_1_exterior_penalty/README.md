@@ -2,7 +2,7 @@
 
 Estado: **disponível**.
 
-- Módulo/função: `penalty_exterior.py` — `penalty_exterior(f, g, h, x0, R0, c, tolviol, tolx, tmax, interno=None, verbose=False)` → `PenaltyResult`, com a assinatura e o núcleo do slide «No computador» (P = f + R(Σ⟨g_j⟩² + Σh_ℓ²), minimizar a partir de x, parar se viol ≤ `tolviol` e ‖x^(t) − x^(t−1)‖/max(1, ‖x^(t−1)‖) ≤ `tolx`, senão R ← cR). Campos `u`, `lam` (o `info.lambda` do MATLAB), `nfev`.
+- Módulo/função: `penalty_exterior.py` — `penalty_exterior(f, g, h, x0, R0, c, tolviol, tolx, tmax, interno=None, verbose=False)` → `PenaltyResult`, com a assinatura e o núcleo do slide «No computador» (P = f + R(Σ⟨g_j⟩² + Σh_ℓ²), minimizar a partir de x, parar se viol ≤ `tolviol` e ‖x^(t) − x^(t−1)‖/max(1, ‖x^(t−1)‖) ≤ `tolx`, senão fazer R = cR). Campos `u`, `lam` (o `info.lambda` do MATLAB), `nfev`.
 - Minimizador interno: argumento opcional `interno(P, x)`, que devolve um objeto com `.x` e `.nfev` (chamadas a P). Por omissão, o Nelder–Mead da UC na versão da comparação: `nelder_mead_comp(P, x)` (tolx = 10⁻¹⁰, tolf = 10⁻¹², kmax = 2000). O slide usa o `fminsearch` do MATLAB.
 - `nelder_mead_comp.py` (em `code/python/common/`, partilhado com 4.3.2; encontrado através de `import uc_setup`) — o Nelder–Mead da UC na versão do script da comparação de 4.3.2 (ver abaixo).
 - Exemplo: `ex04_3_1_exterior_penalty.py`, que reproduz os números do deck 4.3.1 e o lado exterior da comparação de 4.3.2 (os mesmos números que o exemplo MATLAB com `NelderMeadComp`).

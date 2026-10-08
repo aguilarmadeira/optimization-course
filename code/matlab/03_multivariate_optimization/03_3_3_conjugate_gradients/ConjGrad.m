@@ -7,6 +7,9 @@ function [x, fx, info] = ConjGrad(f, grad, x0, tolg, kmax, opts)
 %   d_0 = -g_0,  d_{k+1} = -g_{k+1} + beta_{k+1} d_k,
 %   beta_{k+1} = ||g_{k+1}||^2 / ||g_k||^2  (Fletcher-Reeves).
 %
+%   Notação das aulas e dos slides: S_k = direção (aqui d), lambda_k =
+%   comprimento do passo (aqui alpha), grad f_k = gradiente (aqui g).
+%
 %   Entradas
 %     f      função (handle) de R^n em R
 %     grad   gradiente de f (handle que devolve um vetor coluna)
@@ -24,12 +27,12 @@ function [x, fx, info] = ConjGrad(f, grad, x0, tolg, kmax, opts)
 %       .verbose  (false) se true, imprime a tabela das iterações
 %
 %   Saídas
-%     x      último iterando x_k
+%     x      última iterada x_k
 %     fx     f(x_k)
 %     info   estrutura com
 %       .nfev      avaliações de f: pesquisas em linha (cada uma volta a
 %                  avaliar phi(0) = f(x_k) no modo 'brent') + f em cada
-%                  iterando (x_0 incluído)
+%                  iterada (x_0 incluído)
 %       .nfev_ls   avaliações de f só nas pesquisas em linha
 %       .ngev      gradientes: nit + 1
 %       .nhev      0 (o método não usa a Hessiana)
@@ -61,7 +64,7 @@ lstol = campo(opts, 'lstol', []);
 verbose = campo(opts, 'verbose', false);
 
 nfev = 0;  ngev = 0;  nfev_ls = 0;  nrestart = 0;
-fx = f(x);  nfev = nfev + 1;                   % f no iterando x_0
+fx = f(x);  nfev = nfev + 1;                   % f na iterada x_0
 % --- núcleo (igual ao dos slides, com as contagens) ----------------------
 g = grad(x);  g = g(:);  ngev = ngev + 1;
 d = -g;                                        % 1.a direção
@@ -73,7 +76,7 @@ while flag == 1 && k < kmax
   [alpha, nls] = LineSearch(phi, ls, lstol);
   nfev = nfev + nls;  nfev_ls = nfev_ls + nls;
   x = x + alpha*d;
-  fx = f(x);  nfev = nfev + 1;                 % f no novo iterando
+  fx = f(x);  nfev = nfev + 1;                 % f na nova iterada
   gn = grad(x);  gn = gn(:);  ngev = ngev + 1;
   hist(k + 2, :) = [k + 1, x', fx, norm(gn), alpha, NaN, NaN(1, n)];
   if norm(gn) <= tolg, flag = 0; k = k + 1; break, end

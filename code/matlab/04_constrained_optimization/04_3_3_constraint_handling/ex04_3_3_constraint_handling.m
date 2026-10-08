@@ -48,8 +48,8 @@ FE = @(x) [v(x), f(x)];                                  % E: o par [v f]
 menorE = @(a, b) a(1) < b(1) || (a(1) == b(1) && a(2) < b(2));   % E: regra
 
 x0 = [0, 0];  a = 2;  P0 = 0.5;  T = 1e-6;
-HJ = @(F, x0) HookeJeeves(F, x0, a, P0, T);
-HJE = @(x0) HookeJeeves(FE, x0, a, P0, T, [], false, menorE);
+HJ = @(F, x0) HookeJeeves(F, x0, a, P0, T, [], [], [], '1961');
+HJE = @(x0) HookeJeeves(FE, x0, a, P0, T, [], false, menorE, '1961');
 
 fprintf('Otimização — deck 4.3.3: restrições na prática (um problema, cinco tratamentos)\n');
 fprintf('min (x1-2)^2 + (x2-1)^2 s.a. g = 2 - x1 - x2 >= 0;  x* = (1.5, 0.5), f* = 0.5, u* = 1\n');
@@ -145,7 +145,7 @@ rot = @(F) @(y) F((Q*y(:)).');
 y0 = (Q.'*x0(:)).';
 [y, ~, i1] = HJ(rot(FC2), y0);  xr(1, :) = (Q*y(:)).';  linha('C exata, R = 2 (rodado)', xr(1, :), i1.nfev);
 [y, ~, i2] = HJ(rot(FD), y0);   xr(2, :) = (Q*y(:)).';  linha('D barreira extrema (rodado)', xr(2, :), i2.nfev);
-[y, ~, i3] = HookeJeeves(rot(FE), y0, a, P0, T, [], false, menorE);
+[y, ~, i3] = HookeJeeves(rot(FE), y0, a, P0, T, [], false, menorE, '1961');
 xr(3, :) = (Q*y(:)).';  linha('E regra [v f] (rodado)', xr(3, :), i3.nfev);
 c = confere(xr, repmat(xs, 3, 1), 4);
 fprintf('  com as direções rodadas, C (R = 2), D e E chegam a x* = (1.5; 0.5): %s\n', simnao{1 + c});

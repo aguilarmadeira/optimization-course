@@ -18,7 +18,7 @@ COLS = ("k", "x_k", "f(x_k)", "df(x_k)", "ddf(x_k)", "x_k+1", "df(x_k+1)")
 @dataclass
 class NewtonResult:
     """Resultado de `newton_1d` (os mesmos campos que `info` no MATLAB)."""
-    x: float                  # último iterando
+    x: float                  # última iterada
     fx: float                 # f(x) (nan se f is None) -- só para leitura
     nit: int                  # passos de Newton
     ngev: int                 # avaliações de f': 1 + nit

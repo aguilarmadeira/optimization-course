@@ -7,6 +7,8 @@ Estado: **disponível**.
 - Exemplo: `ex03_3_3_conjugate_gradients.m`, que reproduz os números do deck 3.3.3.
 - Apontamentos: `notes/pt/` (deck 3.3.3). A tabela comparativa do fim do capítulo está em `../03_3_comparison/`.
 
+**Notação.** Nos slides e nas aulas: S_k é a direção de pesquisa (no código, `d`), λ_k o comprimento do passo (no código, `alpha`) e ∇f_k o gradiente em x_k (no código, `g`).
+
 ## Como correr
 
 Na pasta desta secção, em MATLAB ou GNU Octave:
@@ -29,6 +31,6 @@ A tabela das iterações na quadrática ½(x₁² + 9x₂²) a partir de (9,1) (
 - Última linha: `confere com os slides: sim`.
 
 **Reinícios** (os testes 1 e 2 do slide, como no núcleo «No computador»): d = −g quando mod(k+1, n) = 0 (`opts.restart`, por omissão n; 0 desliga) ou quando gᵀd ≥ 0 (sempre ativo). `info.nrestart` conta-os.
-**Contagens.** `info.ngev = nit + 1`; `info.nfev` = avaliações das pesquisas em linha (no modo `'brent'` cada pesquisa volta a avaliar φ(0) = f(x_k)) + f em cada iterando (x₀ incluído); `info.nfev_ls` = só as das pesquisas; `info.nhev = 0`.
+**Contagens.** `info.ngev = nit + 1`; `info.nfev` = avaliações das pesquisas em linha (no modo `'brent'` cada pesquisa volta a avaliar φ(0) = f(x_k)) + f em cada iterada (x₀ incluído); `info.nfev_ls` = só as das pesquisas; `info.nhev = 0`.
 `info.history`: uma linha por k = 0..nit, `[k x_k' f(x_k) ||g_k|| alpha_{k-1} beta_k d_k']` (β e d da última linha não são calculados: NaN).
 Testado em GNU Octave 8.4; só usa funções comuns a MATLAB e Octave.

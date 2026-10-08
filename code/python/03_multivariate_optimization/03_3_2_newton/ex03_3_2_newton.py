@@ -72,7 +72,7 @@ xr = np.array([-1.5, 2.0])
 print("\nRosenbrock de (-1.5; 2), Newton puro (tolg = 1e-8):")
 r = newton_nd(rosen, grosen, Hrosen, xr, 1e-8, 50, verbose=True)
 H = r.history
-print("%s; n_g = %d, n_H = %d, n_f = %d (f só nos iterandos)" % (r.message, r.ngev, r.nhev, r.nfev))
+print("%s; n_g = %d, n_H = %d, n_f = %d (f só nas iteradas)" % (r.message, r.ngev, r.nhev, r.nfev))
 subidas = [(int(H[k, 0]), H[k, 3]) for k in range(1, H.shape[0]) if H[k, 3] > H[k - 1, 3]]
 print("f sobe em: " + ", ".join("k = %d (f = %.2f)" % s for s in subidas))
 Tx = [[-1.5000, 2.0000], [-1.4510, 2.1029], [0.2044, -2.6986], [0.2059, 0.0424],

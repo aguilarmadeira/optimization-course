@@ -18,7 +18,7 @@ COLS = ("k", "x_k", "h", "df_num", "ddf_num", "x_k+1")
 @dataclass
 class NewtonNumericResult:
     """Resultado de `newton_numeric` (os mesmos campos que `info` no MATLAB)."""
-    x: float                  # último iterando x_{k+1}
+    x: float                  # última iterada x_{k+1}
     fx: float                 # f(x)
     nit: int                  # passos de Newton
     nfev: int                 # 3 por iteração + 1 (f(x) no fim)

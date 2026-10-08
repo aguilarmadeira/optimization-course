@@ -22,7 +22,7 @@ function [x, fx, info] = NewtonSafeguarded(f, df, ddf, a, b, x0, tolg, kmax, ver
 %     verbose  (opcional, false) se true, imprime a tabela das iterações
 %
 %   Saídas
-%     x        último iterando x_k
+%     x        última iterada x_k
 %     fx       f(x) (NaN se f = [])
 %     info     estrutura com
 %       .ngev      avaliações de f': 3 + nit (f'(a), f'(b) para verificar o

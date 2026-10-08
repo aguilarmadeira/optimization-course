@@ -2,7 +2,7 @@
 
 Estado: **disponível**.
 
-- Módulo/função: `simulated_annealing.py` — `simulated_annealing(f, x0, T0, c, sigma, Nmax, lb=-inf, ub=inf, rng=None)` → `SAResult`, com o núcleo do slide «No computador» (vizinho gaussiano projetado em X, Metropolis, melhor visitado, T ← cT). Devolve o **melhor ponto visitado**, `nfev` e `nacc`.
+- Módulo/função: `simulated_annealing.py` — `simulated_annealing(f, x0, T0, c, sigma, Nmax, lb=-inf, ub=inf, rng=None)` → `SAResult`, com o núcleo do slide «No computador» (vizinho gaussiano projetado em X, Metropolis, melhor visitado, fazer T = cT). Devolve o **melhor ponto visitado**, `nfev` e `nacc`.
 - `rng`: um `np.random.Generator` (p. ex. `np.random.default_rng(3)`) ou uma semente inteira; o mesmo gerador pode ser passado a várias corridas seguidas, como nos scripts das figuras.
 - Exemplo: `ex05_2_simulated_annealing.py`, que reproduz **exatamente** os números do deck 5.2.
 - Apontamentos: `notes/pt/` (deck 5.2).

@@ -19,7 +19,7 @@ TIPOS = {0: "Newton", 1: "bisseção"}
 @dataclass
 class SafeguardedResult:
     """Resultado de `newton_safeguarded` (os mesmos campos que `info` no MATLAB)."""
-    x: float                  # último iterando
+    x: float                  # última iterada
     fx: float                 # f(x) (nan se f is None) -- só para leitura
     nit: int                  # iterações
     ngev: int                 # avaliações de f': 2 (f'(a), f'(b)) + 1 (f'(x0)) + nit

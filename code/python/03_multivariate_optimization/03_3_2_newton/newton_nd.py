@@ -31,10 +31,10 @@ DIRECOES = {0: "Newton", 1: "Newton com H + mu I", 2: "-g (salvaguarda)"}
 @dataclass
 class NewtonNDResult:
     """Resultado de `newton_nd` (os mesmos campos que `info` no MATLAB)."""
-    x: np.ndarray             # último iterando x_k
+    x: np.ndarray             # última iterada x_k
     fx: float                 # f(x_k) (nan se f is None)
     nit: int                  # iterações feitas
-    nfev: int                 # avaliações de f: f nos iterandos (+ pesquisas em linha, se amortecido)
+    nfev: int                 # avaliações de f: f nas iteradas (+ pesquisas em linha, se amortecido)
     ngev: int                 # gradientes: nit + 1 (o último é o do teste de paragem)
     nhev: int                 # Hessianas: nit
     nfev_ls: int = 0          # avaliações de f só nas pesquisas em linha
@@ -57,6 +57,11 @@ def newton_nd(f, grad, hess, x0, tolg=1e-8, kmax=50, damped=False, modify=False,
               ls="brent", lstol=None, verbose=False):
     """Newton em R^n a partir de x0.
 
+    Notação das aulas e dos slides: S_k = direção (aqui d), lambda_k =
+    comprimento do passo (aqui alpha), grad f_k = gradiente (aqui g).
+    O algoritmo das aulas (lambda_k* ótimo na direção de Newton) é
+    damped=True com ls="brent"; o Newton puro (lambda_k = 1) é damped=False.
+
     Parâmetros
     ----------
     f : função de R^n em R (None só no Newton puro: então n_f = 0)
@@ -73,10 +78,10 @@ def newton_nd(f, grad, hess, x0, tolg=1e-8, kmax=50, damped=False, modify=False,
     ls, lstol : pesquisa em linha do amortecido ("brent", tol 1e-10, a das
              figuras; ou "fminbnd") -- ver line_search.py; ou "armijo":
              alpha = 1, 1/2, 1/4, ... até f(x + alpha d) <= f(x) + c1 alpha g^T d,
-             c1 = 1e-4 (o valor aceite é reaproveitado como f no novo iterando)
+             c1 = 1e-4 (o valor aceite é reaproveitado como f na nova iterada)
     verbose : se True, imprime a tabela das iterações
 
-    Contagens: n_g = nit + 1, n_H = nit; n_f = f em cada iterando (x_0
+    Contagens: n_g = nit + 1, n_H = nit; n_f = f em cada iterada (x_0
     incluído) + as avaliações das pesquisas em linha (amortecido).
     history tem uma linha por k = 0, ..., nit:
     [k, x_k (n colunas), f(x_k), ||g_k||, alpha_{k-1}, lambda_min(H_{k-1}),
@@ -90,7 +95,7 @@ def newton_nd(f, grad, hess, x0, tolg=1e-8, kmax=50, damped=False, modify=False,
     n = x.size
     nfev = ngev = nhev = nfev_ls = 0
     if temf:
-        fx = f(x); nfev += 1                       # f no iterando x_0
+        fx = f(x); nfev += 1                       # f na iterada x_0
     else:
         fx = np.nan
     rows = [[0, *x, fx, np.nan, np.nan, np.nan, np.nan]]
@@ -130,7 +135,7 @@ def newton_nd(f, grad, hess, x0, tolg=1e-8, kmax=50, damped=False, modify=False,
         if damped and ls == "armijo":
             fx = ft                               # já avaliado no recuo
         elif temf:
-            fx = f(x); nfev += 1                  # f no novo iterando
+            fx = f(x); nfev += 1                  # f na nova iterada
         k += 1
         rows.append([k, *x, fx, np.nan, alpha, lmin, tipo])
     # ----------------------------------------------------------------------

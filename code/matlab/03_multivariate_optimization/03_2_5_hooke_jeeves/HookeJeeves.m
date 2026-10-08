@@ -1,28 +1,43 @@
-function [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor)
+function [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor, variante, R)
 %HOOKEJEEVES  Método de Hooke–Jeeves (pesquisa em padrão), sem derivadas.
 %
 %   [x, fx, info] = HookeJeeves(f, x0, a, P0, T)
 %   [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose)
 %   [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor)
+%   [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor, variante, R)
 %
-%   Alterna o movimento exploratório (Exploratory.m, eixo a eixo: avalia +-P_j
-%   e fica com o melhor, como em Deb, 2012) com o
-%   movimento de padrão xt = xb + a (xe - xb), seguido de nova exploração em
-%   torno de xt. Se a exploração em torno de xb falha, P <- P/2 (P só diminui:
-%   não é reposto em P0 a cada sucesso). Para quando todos os P_j < T_j.
+%   Alterna o movimento exploratório (Exploratory.m, eixo a eixo: avalia
+%   +-Delta_j e fica com o melhor dos três pontos, como em Deb, 2012) com o
+%   movimento de padrão X^P_{k+1} = 2 X_k - X_{k-1} (a = 2), seguido de nova
+%   exploração em torno de X^P_{k+1}.
+%   Variante 'deb' (por omissão; a das aulas, Deb, 2012, sec. 3.3.3):
+%     passo 2  explorar em torno de X_k; se melhorar, X_{k+1} = resultado, passo 4;
+%              senão, passo 3
+%     passo 3  se ||Delta|| < eps, parar; senão Delta = Delta/R e voltar ao passo 2
+%     passo 4  padrão X^P_{k+1} = 2 X_k - X_{k-1}
+%     passo 5  explorar em torno de X^P_{k+1}; o resultado é X_{k+1}
+%     passo 6  se f(X_{k+1}) < f(X_k), voltar ao passo 4; senão, passo 3
+%   Aqui T é eps (um escalar) e R o fator de redução (2 por omissão).
+%   Variante '1961' (Hooke e Jeeves, 1961): quando o padrão falha, recua-se
+%   para X_k e explora-se de novo com o mesmo Delta; Delta só se divide por 2
+%   quando a exploração em torno da base falha; pára quando todos os
+%   Delta_j < T_j. Em ambas, Delta só diminui.
 %
 %   Entradas
 %     f        função (handle) de um vetor linha x (1 x n)
 %     x0       ponto inicial (vetor; é tratado como linha)
 %     a        fator do movimento de padrão (tipicamente 2); [] = 2
-%     P0       perturbações iniciais, uma por coordenada (escalar = igual em todas)
-%     T        tolerâncias, uma por coordenada (escalar = igual em todas)
+%     P0       passos iniciais Delta_0, um por coordenada (escalar = igual em todas)
+%     T        variante 'deb': eps (escalar), pára quando ||Delta|| < eps;
+%              variante '1961': tolerâncias, uma por coordenada
 %     kmax     (opcional, 10000) número máximo de movimentos (explorações
 %              a partir da base + movimentos de padrão)
 %     verbose  (opcional, false) se true, imprime uma linha por movimento
 %     menor    (opcional, @(u,v) u < v) o valor u é melhor do que v? (ver
 %              Exploratory.m; deck 4.3.3: regra de admissibilidade, com f a
 %              devolver [v(x) f(x)])
+%     variante (opcional, 'deb') 'deb' ou '1961'
+%     R        (opcional, 2) fator de redução de Delta na variante 'deb'
 %
 %   Saídas
 %     x        ponto base final (vetor linha)
@@ -42,7 +57,7 @@ function [x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor)
 %       .ftrace   valores de f pela ordem em que foram avaliados (1 x nfev);
 %                 p. ex. find(info.ftrace < 1e-4, 1) = avaliações até f < 1e-4
 %       .P        perturbações no fim
-%       .flag     0 se todos os P_j < T_j; 1 se atingiu kmax
+%       .flag     0 se parou pelo critério de paragem; 1 se atingiu kmax
 %       .message  mensagem de paragem
 %
 %   Otimização — deck 3.2.5 (Método de Hooke–Jeeves).
@@ -58,11 +73,20 @@ if isempty(a), a = 2; end
 if nargin < 6 || isempty(kmax), kmax = 10000; end
 if nargin < 7 || isempty(verbose), verbose = false; end
 if nargin < 8 || isempty(menor), menor = @(u, v) u < v; end   % a ordem habitual
+if nargin < 9 || isempty(variante), variante = 'deb'; end
+if nargin < 10 || isempty(R), R = 2; end
+if ~any(strcmp(variante, {'deb', '1961'})), error('HookeJeeves: variante tem de ser ''deb'' ou ''1961''.'); end
+deb = strcmp(variante, 'deb');
 
 xb = x0(:).';
 n = numel(xb);
 P = P0(:).' .* ones(1, n);
-T = T(:).' .* ones(1, n);
+if deb
+  if numel(T) ~= 1, error('HookeJeeves: na variante ''deb'', T é eps (um escalar).'); end
+  epsD = T;  T = epsD*ones(1, n);
+else
+  T = T(:).' .* ones(1, n);
+end
 if any(P <= 0) || any(T <= 0), error('HookeJeeves: P0 e T têm de ser positivos.'); end
 
 fb = f(xb);  nfev = 1;           % f(x0) conta
@@ -72,14 +96,19 @@ m = 0;
 flag = 1;
 xe = xb;  fe = fb;
 
-while m < kmax                   % arranque / reinício
-  [xe, fe, ie] = Exploratory(f, xb, fb, P, menor);   % exploração em torno de xb
+while m < kmax                   % passo 2: exploração em torno da base xb (= X_k)
+  [xe, fe, ie] = Exploratory(f, xb, fb, P, menor);
   nfev = nfev + ie.nfev;  ftrace = [ftrace, ie.ftrace];
   m = m + 1;
   hist(m, :) = [m, 0, xb, NaN(1, n), NaN, xe, fe(end), fb(end), P, menor(fe, fb), nfev];
-  if ~menor(fe, fb)              % falhou (fe >= fb)
-    P = P/2;
-    if all(P < T), flag = 0; break; end
+  if ~menor(fe, fb)              % falhou (fe >= fb): passo 3
+    if deb
+      if norm(P) < epsD, flag = 0; break; end
+      P = P/R;
+    else
+      P = P/2;
+      if all(P < T), flag = 0; break; end
+    end
   else
     while m < kmax               % movimentos de padrão
       xt = xb + a*(xe - xb);  ft = f(xt);            % padrão: ponto tentativo
@@ -88,14 +117,18 @@ while m < kmax                   % arranque / reinício
       nfev = nfev + ie.nfev;  ftrace = [ftrace, ie.ftrace];
       m = m + 1;
       hist(m, :) = [m, 1, xb, xt, ft(end), xn, fn(end), fe(end), P, menor(fn, fe), nfev];
-      if ~menor(fn, fe)          % rejeitado (fn >= fe): recuar para xe e reiniciar
+      if ~menor(fn, fe)          % rejeitado (fn >= fe): recuar para xe (= X_k)
         xb = xe;  fb = fe;
+        if deb                   % passo 3 logo a seguir
+          if norm(P) < epsD, flag = 0; else, P = P/R; end
+        end
         break
       else                       % aceite: continuar o padrão
         xb = xe;  fb = fe;
         xe = xn;  fe = fn;
       end
     end
+    if flag == 0, break; end
   end
 end
 if menor(fe, fb)                 % saiu por kmax a meio de um padrão aceite
@@ -124,7 +157,9 @@ info.cols = cols;
 info.ftrace = ftrace;
 info.P = P;
 info.flag = flag;
-if flag == 0
+if flag == 0 && deb
+  info.message = sprintf('||Delta|| = %.3g < eps = %.3g ao fim de %d movimentos', norm(P), epsD, m);
+elseif flag == 0
   info.message = sprintf('todos os P_j < T_j (max P_j = %.3g) ao fim de %d movimentos', max(P), m);
 else
   info.message = sprintf('atingiu kmax = %d movimentos (max P_j = %.3g)', kmax, max(P));
@@ -157,7 +192,7 @@ if verbose
     fprintf('%10.4f', h(4+3*n));
     fprintf('%9.4f', h(6+3*n:5+4*n));
     if tipo == 0
-      if h(6+4*n), res = 'melhora'; else, res = 'falha:P/2'; end
+      if h(6+4*n), res = 'melhora'; elseif deb, res = 'falha'; else, res = 'falha:P/2'; end
     else
       if h(6+4*n), res = 'aceite'; else, res = 'rejeitado'; end
     end

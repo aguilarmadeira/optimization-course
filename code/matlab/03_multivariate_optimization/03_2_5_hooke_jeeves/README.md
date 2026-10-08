@@ -2,9 +2,11 @@
 
 Estado: **disponível**.
 
-- Funções: `Exploratory.m` — `[xe, fe, info] = Exploratory(f, xb, fb, P, menor)`; `HookeJeeves.m` — `[x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor)` (usa `Exploratory`). A exploração avalia x_j + P_j **e** x_j − P_j e fica com o melhor dos três pontos, como em Deb (2012, sec. 3.3.3). `menor` (opcional, por omissão `@(u,v) u < v`) é a comparação usada; o deck 4.3.3 usa-a para a regra de admissibilidade.
+- Funções: `Exploratory.m` — `[xe, fe, info] = Exploratory(f, xb, fb, P, menor)`; `HookeJeeves.m` — `[x, fx, info] = HookeJeeves(f, x0, a, P0, T, kmax, verbose, menor, variante, R)` (usa `Exploratory`). A exploração avalia x_j + Δ_j **e** x_j − Δ_j e fica com o melhor dos três pontos, como em Deb (2012, sec. 3.3.3). `menor` (opcional, por omissão `@(u,v) u < v`) é a comparação usada; o deck 4.3.3 usa-a para a regra de admissibilidade.
 - Exemplo: `ex03_2_5_hooke_jeeves.m`, que reproduz os números do deck 3.2.5.
 - Apontamentos: `notes/pt/` (deck 3.2.5).
+
+O algoritmo é o das aulas (Deb, 2012, sec. 3.3.3), variante por omissão `deb`: explora-se em torno de x_k; se melhorar, faz-se o padrão x^P_{k+1} = 2x_k − x_{k−1} e explora-se em torno de x^P_{k+1}; se o resultado não for melhor do que x_k (ou se a exploração em torno de x_k falhar), passo 3: se ‖Δ‖ < ε, pára; senão, fazer Δ = Δ/R e explorar de novo em torno de x_k. Aqui `T` é ε (um escalar). A variante `1961` (Hooke e Jeeves, 1961) volta a explorar com o mesmo Δ depois de um padrão falhado e pára quando todos os Δ_j < T_j; é a usada no deck 4.3.3.
 
 ## Como correr
 
@@ -18,17 +20,18 @@ ex03_2_5_hooke_jeeves
 
 ## O que o exemplo imprime
 
-A exploração à mão em f(x) = 3x₁² + x₂² − 12x₁ − 8x₂ a partir de (1,1); o exemplo completo (uma linha por movimento: exploração ou padrão, base, ponto tentativo, ponto explorado, P, resultado, n_f acumulado); o Rosenbrock a partir de (−1.5, 2) e o custo de cada movimento. No fim, a verificação com os slides. Os slides usam vírgula decimal; o código usa o ponto.
+A exploração à mão em f(x) = 3x₁² + x₂² − 12x₁ − 8x₂ a partir de (1,1); o exemplo completo (uma linha por movimento: exploração ou padrão, base, ponto de padrão x^P, ponto explorado, Δ (colunas P), resultado, n_f acumulado); o exemplo de Himmelblau do Deb; o Rosenbrock a partir de (−1.5, 2) e o custo de cada movimento. No fim, a verificação com os slides. Os slides usam vírgula decimal; o código usa o ponto.
 
 ## Saída esperada (resumo)
 
-- Exploração à mão: x₁: (1.5, 1) → −18.25 e (0.5, 1) → −12.25, fica (1.5, 1); x₂: (1.5, 1.5) → −21 e (1.5, 0.5) → −15, fica (1.5, 1.5); 4 avaliações.
-- Exemplo completo (a = 2, P₀ = (0.5, 0.5), T = (0.1, 0.1)): padrão (2,2), f = −24 → (2, 2.5), −25.75, aceite; (2.5, 3.5), −27 → (2,4), −28, aceite; (2, 5.5), −25.75 → (2,5), −27, rejeitado; a exploração em (2,4) falha com P = 0.5, 0.25, 0.125; P = 0.0625 < T: para em (2,4), f = −28 (7 movimentos, n_f = 32).
-- Rosenbrock (P₀ = 0.5, a = 2, T = 10⁻⁶, como no caderno da comparação): primeira avaliação com f < 10⁻⁴ em n_f = 430; no fim, 137 movimentos e n_f = 662. Com T = 10⁻⁵ o n_f até f < 10⁻⁴ é o mesmo (430).
-- Custo: 4 (= 2n) avaliações por exploração; 5 (= 1 + 2n) por movimento de padrão.
+- Exploração à mão (Δ = (0.5, 0.5)): x₁: f⁺ = f(1.5, 1) = −18.25 e f⁻ = f(0.5, 1) = −12.25, fica (1.5, 1); x₂: f⁺ = f(1.5, 1.5) = −21 e f⁻ = f(1.5, 0.5) = −15, fica (1.5, 1.5); 4 avaliações.
+- Exemplo completo (Δ = (0.5, 0.5), R = 2, ε = 0.2): padrões x^P = (2,2), f = −24 → (2, 2.5), −25.75, sucesso; (2.5, 3.5), −27 → (2,4), −28, sucesso; (2, 5.5), −25.75 → (2,5), −27, insucesso (passo 3); a exploração em (2,4) falha com Δ = 0.25 e 0.125; ‖Δ‖ = 0.177 < ε: pára em (2,4), f = −28 (6 movimentos, n_f = 28).
+- Himmelblau a partir de (0,0), Δ = (0.5, 0.5), ε = 0.2 (Deb, 2012, exercício 3.3.3): x₁ = (0.5, 0.5), x₂ = (1.5, 1.5), x₃ = (3,2); o padrão (4.5, 2.5) → (4,2), f = 50, falha; pára em (3,2), f = 0.
+- Rosenbrock (Δ = 0.5, R = 2, ε = 10⁻⁶): primeira avaliação com f < 10⁻⁴ em n_f = 627; no fim, 140 movimentos e n_f = 680. Com a versão de 1961 (`variante` = 1961): n_f = 430.
+- Custo: 4 (= 2n) avaliações por exploração; 5 (= 1 + 2n) por movimento em padrão.
 - Última linha: `confere com os slides: sim`.
 
-**Contagens.** `info.nfev` = 1 (f(x₀)) + 2n por exploração + 1 por ponto tentativo x_t. f(x_b) fica guardado e nunca é reavaliado; f(x) final não é reavaliado. `Exploratory` recebe f(x_b) já conhecido e não o conta. `info.ngev = info.nhev = 0`.
+**Contagens.** `info.nfev` = 1 (f(x₀)) + 2n por exploração + 1 por ponto de padrão x^P. f(x_b) fica guardado e nunca é reavaliado; f(x) final não é reavaliado. `Exploratory` recebe f(x_b) já conhecido e não o conta. `info.ngev = info.nhev = 0`.
 `info.nit` é o número de movimentos (explorações a partir da base + movimentos de padrão); `info.history` tem uma linha por movimento, `[m tipo xb xt f(xt) xe f(xe) f_ref P sucesso nfev]`. `info.ftrace` guarda os valores de f pela ordem de avaliação: `find(info.ftrace < 1e-4, 1)` dá as avaliações até f < 10⁻⁴.
-P só diminui (P ← P/2 depois de uma exploração falhada em torno da base); não é reposto em P₀ a cada sucesso.
+Δ só diminui (fazer Δ = Δ/R no passo 3); não é reposto em Δ₀ a cada sucesso.
 Testado em GNU Octave 8.4; só usa funções comuns a MATLAB e Octave. O `patternsearch` do MATLAB (Global Optimization Toolbox) não é usado.

@@ -53,7 +53,7 @@ fprintf('\nRosenbrock de (-1.5; 2), Newton puro (tolg = 1e-8):\n');
 opts = struct('verbose', true);
 [x, fx, info] = NewtonND(rosen, grosen, Hrosen, xr, 1e-8, 50, opts);
 H = info.history;
-fprintf('%s; n_g = %d, n_H = %d, n_f = %d (f só nos iterandos)\n', info.message, info.ngev, info.nhev, info.nfev);
+fprintf('%s; n_g = %d, n_H = %d, n_f = %d (f só nas iteradas)\n', info.message, info.ngev, info.nhev, info.nfev);
 ks = find(diff(H(:, 4)) > 0);                 % f sobe de k-1 para k
 sub = arrayfun(@(j) sprintf('k = %d (f = %.2f)', j, H(j + 1, 4)), ks(:)', 'UniformOutput', false);
 fprintf('f sobe em: %s\n', strjoin(sub, ', '));

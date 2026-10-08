@@ -70,7 +70,7 @@ for row in H[:9]:
 print("...")
 print("%4d  (%9.2e; %9.2e) %12.2e %10.2e %9.4f" % tuple(H[-1]))
 razao = H[1:, 3] / H[:-1, 3]
-print("%s: %d iterações, n_g = %d, n_f = %d (%d nas pesquisas em linha + %d iterandos)"
+print("%s: %d iterações, n_g = %d, n_f = %d (%d nas pesquisas em linha + %d iteradas)"
       % (r.message, r.nit, r.ngev, r.nfev, r.nfev_ls, r.nit + 1))
 print("média de %.1f avaliações de f por pesquisa em linha (o slide diz «cerca de 24»)" % (r.nfev_ls / r.nit))
 print("f_{k+1}/f_k: mín. %.4f, máx. %.4f (cota de Kantorovich ((9-1)/(9+1))^2 = 0.64)" % (razao.min(), razao.max()))
@@ -102,7 +102,7 @@ ok = ok and all(c)
 # ------------------------------------------------ gradiente numérico
 rn = steepest_descent(f, None, x0, tolg, 1000)
 print("\nCom gradiente numérico (grad = None: grad_fd, 2n = 4 avaliações de f por gradiente):")
-print("%d iterações, n_g = %d, n_f = %d = %d (pesquisas) + %d (iterandos) + 4 x %d (gradientes)"
+print("%d iterações, n_g = %d, n_f = %d = %d (pesquisas) + %d (iteradas) + 4 x %d (gradientes)"
       % (rn.nit, rn.ngev, rn.nfev, rn.nfev_ls, rn.nit + 1, rn.nit + 1))
 c = [rn.nit == 74, rn.ngev == 0, rn.nfev == rn.nfev_ls + (rn.nit + 1) + 4 * (rn.nit + 1)]
 print("  74 it.: %s | n_g = 0: %s | 2n por gradiente em n_f: %s" % simnao(c))

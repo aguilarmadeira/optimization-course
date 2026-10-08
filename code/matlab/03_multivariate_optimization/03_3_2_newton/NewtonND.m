@@ -4,6 +4,12 @@ function [x, fx, info] = NewtonND(f, grad, hess, x0, tolg, kmax, opts)
 %   [x, fx, info] = NewtonND(f, grad, hess, x0, tolg, kmax)
 %   [x, fx, info] = NewtonND(f, grad, hess, x0, tolg, kmax, opts)
 %
+%   Notação das aulas e dos slides: S_k = direção (aqui d), lambda_k =
+%   comprimento do passo (aqui alpha), grad f_k = gradiente (aqui g).
+%   O algoritmo das aulas (lambda_k* ótimo na direção de Newton) é
+%   opts.damped = true com opts.ls = 'brent'; o Newton puro (lambda_k = 1)
+%   é opts.damped = false.
+%
 %   Entradas
 %     f       função (handle) de R^n em R ([] só no Newton puro: n_f = 0)
 %     grad    gradiente de f (handle que devolve um vetor coluna)
@@ -23,15 +29,15 @@ function [x, fx, info] = NewtonND(f, grad, hess, x0, tolg, kmax, opts)
 %                 tol 1e-10, a das figuras) ou 'fminbnd' -- ver LineSearch;
 %                 ou 'armijo': alpha = 1, 1/2, 1/4, ... até
 %                 f(x + alpha*d) <= f(x) + c1*alpha*g'*d, c1 = 1e-4
-%                 (o valor aceite é reaproveitado como f no novo iterando)
+%                 (o valor aceite é reaproveitado como f na nova iterada)
 %       .lstol    tolerância da pesquisa em linha ([] = a de LineSearch)
 %       .verbose  (false) se true, imprime a tabela das iterações
 %
 %   Saídas
-%     x      último iterando x_k
+%     x      última iterada x_k
 %     fx     f(x_k) (NaN se f = [])
 %     info   estrutura com
-%       .nfev     avaliações de f: f em cada iterando (x_0 incluído) + as
+%       .nfev     avaliações de f: f em cada iterada (x_0 incluído) + as
 %                 avaliações das pesquisas em linha (amortecido)
 %       .nfev_ls  avaliações de f só nas pesquisas em linha
 %       .ngev     gradientes: nit + 1 (o último é o do teste de paragem)
@@ -118,7 +124,7 @@ while true
   if damped && strcmpi(ls, 'armijo')
     fx = ft;                                   % já avaliado no recuo
   elseif temf
-    fx = f(x); nfev = nfev + 1;                % f no novo iterando
+    fx = f(x); nfev = nfev + 1;                % f na nova iterada
   end
   k = k + 1;
   hist(k + 1, :) = [k, x', fx, NaN, alpha, lmin, tipo];

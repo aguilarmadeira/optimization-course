@@ -64,7 +64,7 @@ FE = lambda x: (v(x), f(x))                              # E: o par (v, f)
 menorE = lambda a, b: a[0] < b[0] or (a[0] == b[0] and a[1] < b[1])   # E: regra
 
 x0 = [0.0, 0.0]; a = 2; P0 = 0.5; T = 1e-6
-HJ = lambda F, x0=x0, **k: hooke_jeeves(F, x0, a, P0, T, **k)
+HJ = lambda F, x0=x0, **k: hooke_jeeves(F, x0, a, P0, T, variante="1961", **k)
 
 ok = True
 print("Otimização — deck 4.3.3: restrições na prática (um problema, cinco tratamentos)")
@@ -169,7 +169,7 @@ y0 = Q.T @ np.array(x0)
 rotres = {}
 for nome, F, k in (("C exata, R = 2", FC(2), {}), ("D barreira extrema", FD, {}),
                    ("E regra (v, f)", FE, {"menor": menorE})):
-    r = hooke_jeeves(rot(F), y0, a, P0, T, **k)
+    r = hooke_jeeves(rot(F), y0, a, P0, T, variante="1961", **k)
     r.x = Q @ r.x
     rotres[nome] = linha(nome + " (rodado)", r)
 c = [confere(list(rotres.values()), [xs] * 3, 4)]

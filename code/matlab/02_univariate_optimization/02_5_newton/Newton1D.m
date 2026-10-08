@@ -14,7 +14,7 @@ function [x, fx, info] = Newton1D(f, df, ddf, x0, tolg, kmax, tolH, verbose)
 %     verbose  (opcional, false) se true, imprime a tabela das iterações
 %
 %   Saídas
-%     x        último iterando x_k
+%     x        última iterada x_k
 %     fx       f(x) (NaN se f = [])
 %     info     estrutura com
 %       .ngev      avaliações de f': 1 + nit (f'(x0) e uma por iteração)
