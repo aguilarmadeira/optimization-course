@@ -2,6 +2,8 @@
 
 Estado: **disponível**.
 
+> **Notação das aulas.** Nos decks 4.2 e 4.3 o multiplicador de uma desigualdade g_j ≥ 0 chama-se **λ_j** (e o de uma igualdade **β_ℓ**). No código mantém-se o nome `u` (`info.u`) para as estimativas de λ_j; os valores são os mesmos.
+
 - Funções: `BarrierLog.m` — `[x, fx, info] = BarrierLog(f, g, x0, R0, c, tolcomp, tolx, tmax, interno, verbose)`, com a assinatura e o núcleo do slide «No computador» (P = `Pbar(f, g, x, R)`, minimizar a partir de x, u = R./g, parar se J·R ≤ `tolcomp` e ‖x^(t) − x^(t−1)‖/max(1, ‖x^(t−1)‖) ≤ `tolx`, senão fazer R = cR); `Pbar.m` — `v = Pbar(f, g, x, R)`: `Inf` se algum g_j ≤ 0 (sem avaliar f), senão f − R Σ ln g_j. Devolve `info.nfev`, `info.u`.
 - Minimizador interno: argumento opcional `interno`, um handle `[xn, Pn, out] = interno(P, x)` com `out.nfev` = chamadas a P; tem de aceitar P = `Inf`. Por omissão, o do slide: `fminsearch(P, x, opt)` com `opt = optimset('TolX', 1e-10, 'TolFun', 1e-10, 'MaxFunEvals', 2000, 'MaxIter', 2000)`.
 - `NelderMeadComp.m` (em `code/matlab/common/`, o mesmo de 4.3.1; posto no caminho por `uc_setup`) — o Nelder–Mead da UC na versão do script da comparação (ver o README de `04_3_1_exterior_penalty` para as duas diferenças em relação ao `NelderMead` do deck 3.2.3). É o interno dos exemplos.

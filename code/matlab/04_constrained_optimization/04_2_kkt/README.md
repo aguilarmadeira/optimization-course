@@ -2,6 +2,8 @@
 
 Estado: **disponível**.
 
+> **Notação das aulas.** Nos decks 4.2 e 4.3 os multiplicadores das desigualdades g_j ≥ 0 chamam-se **λ_j** e os das igualdades **β_ℓ**, com 𝓛 = f − Σ λ_j g_j − Σ β_ℓ h_ℓ (nas igualdades, β_ℓ = −λ_ℓ do Lagrangiano 𝓛 = f + Σ λ_ℓ h_ℓ de 4.1). No código mantêm-se os nomes `u` (= λ_j das aulas) e `lam` (= β_ℓ das aulas); os valores são os mesmos.
+
 - Não há função da UC neste deck: o código é um exemplo, com uma função auxiliar pequena.
 - Auxiliar: `KKTCheck.m` — `[ok, res] = KKTCheck(df, g, Jg, u, h, Jh, lam, tol)`: verifica as condições KKT num ponto, na convenção da UC (g_j ≥ 0, h_ℓ = 0, 𝓛 = f − uᵀg − λᵀh). Recebe o gradiente de f, os valores e as jacobianas das restrições (linha j = ∇g_jᵀ) e os multiplicadores; devolve em `res` os resíduos `estac` (‖∇f − J_gᵀu − J_hᵀλ‖∞), `admis` (max(−g_j, |h_ℓ|)), `compl` (max |u_j g_j|), `sinal` (max(−u_j, 0)) e o conjunto ativo `ativas`. Não verifica a LICQ nem classifica o ponto. `help KKTCheck`.
 - Exemplo: `ex04_2_kkt.m`, que reproduz os números do deck 4.2:
@@ -30,14 +32,14 @@ ex04_2_kkt
 5. «KKT dá candidatos»: min −x² s.a. x + 1 ≥ 0, 2 − x ≥ 0 — três pontos KKT (x = 0 máximo, −1 mínimo local, 2 mínimo global).
 6. «O que medem os multiplicadores»: exemplo 1 com b = 3,1 (f* = 0,934; aproximação 1 − (2/3)·0,1 = 0,933) e a produção do 1.1 em g ≥ 0 (preços-sombra u = (10, 20, 0) pelas duas ativas: 2u₁ + u₂ = 40, u₁ + u₂ = 30).
 7. «Quando KKT falha: LICQ»: em (1,0) os gradientes ativos são dependentes; resíduo mínimo 1, não há u.
-8. Exercícios 1, 2 e 4 (as respostas a cinzento): ex. 1 x* = (0,3), ativas {1,2} (u = (1,1,0), não está no slide); ex. 2 x* = (4/5, 8/5), λ = 8/5, desigualdades inativas; ex. 4 (lata com h ≤ 6) r* = 4,18, A* = 267,7, u* ≈ 5,19 (λ = 0,5723, não está no slide).
+8. Exercícios 1, 2 e 4 (as respostas a cinzento): ex. 1 x* = (0,3), ativas {1,2} (u = (1,1,0), não está no slide); ex. 2 x* = (4/5, 8/5), β = 8/5, desigualdades inativas; ex. 4 (lata com h ≤ 6) r* = 4,18, A* = 267,7, u* ≈ 5,19 (λ = 0,5723, não está no slide).
 
 **(b) Com um solver** (exemplo 1, exemplo 2, exercícios 2 e 4; produção em PL):
 
 | Solver | Chamada | Conversão para a UC |
 |---|---|---|
-| `fmincon` (MATLAB) | `nonlcon = @(x) deal(-g(x), h(x))` (c = −g ≤ 0, c_eq = h) | **u = `lambda.ineqnonlin`**; **λ = −`lambda.eqnonlin`** (𝓛_fmincon = f + μᵀc + λ_eqᵀc_eq) |
-| `sqp` (Octave) | `sqp(x0, f, h, g)` com g(x) ≥ 0, h(x) = 0 | nenhuma: `lambda = [λ; u]` já na convenção da UC (verificado nos exemplos) |
+| `fmincon` (MATLAB) | `nonlcon = @(x) deal(-g(x), h(x))` (c = −g ≤ 0, c_eq = h) | **u = `lambda.ineqnonlin`**; **β (`lam`) = −`lambda.eqnonlin`** (𝓛_fmincon = f + μᵀc + λ_eqᵀc_eq) |
+| `sqp` (Octave) | `sqp(x0, f, h, g)` com g(x) ≥ 0, h(x) = 0 | nenhuma: `lambda = [β; λ]` (no código, `[lam; u]`) já na convenção das aulas (verificado nos exemplos) |
 | `linprog` (MATLAB) | `linprog(-c, A, b, [], [], lb)` (min −L) | preços-sombra = `lambda.ineqlin` = (10, 20, 0) |
 | `glpk` (Octave) | `glpk(c, A, b, lb, [], 'UUU', 'CC', -1)` (maximiza L) | preços-sombra = `extra.lambda` = (10, 20, 0) |
 

@@ -37,7 +37,7 @@ function [x, fx, info] = PenaltyExterior(f, g, h, x0, R0, c, tolviol, tolx, tmax
 %       .nfev      TODAS as chamadas a f: chamadas a P nas minimizações
 %                  internas (cada uma avalia f uma vez) + a avaliação final
 %       .u         -2R<g_j(x)> (estimativa de u*, KKT)
-%       .lambda    -2R h_l(x) (estimativa de lambda*, com L = f - lambda h)
+%       .lambda    -2R h_l(x) (estimativa do multiplicador beta* das aulas, com L = f - beta h)
 %       .R         R usado no último ciclo
 %       .ngev, .nhev   0 (o minimizador interno por omissão só usa f)
 %       .nit       ciclos exteriores t feitos
@@ -89,7 +89,7 @@ end
 
 fx = f(x);  info.nfev = info.nfev + 1;    % avaliação final
 info.u = -2*Rult*br(col(g(x)));           % u_R = -2R<g>
-info.lambda = -2*Rult*col(h(x));          % lambda_R = -2R h
+info.lambda = -2*Rult*col(h(x));          % beta_R = -2R h
 info.R = Rult;
 info.ngev = 0;
 info.nhev = 0;

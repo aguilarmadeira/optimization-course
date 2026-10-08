@@ -2,6 +2,8 @@
 
 Estado: **disponível**.
 
+> **Notação das aulas.** Nos decks 4.2 e 4.3 o multiplicador de uma desigualdade g_j ≥ 0 chama-se **λ_j** (e o de uma igualdade **β_ℓ**). No código mantém-se o nome `u` (`info.u`) para as estimativas de λ_j; os valores são os mesmos.
+
 - Módulo/função: `penalty_exterior.py` — `penalty_exterior(f, g, h, x0, R0, c, tolviol, tolx, tmax, interno=None, verbose=False)` → `PenaltyResult`, com a assinatura e o núcleo do slide «No computador» (P = f + R(Σ⟨g_j⟩² + Σh_ℓ²), minimizar a partir de x, parar se viol ≤ `tolviol` e ‖x^(t) − x^(t−1)‖/max(1, ‖x^(t−1)‖) ≤ `tolx`, senão fazer R = cR). Campos `u`, `lam` (o `info.lambda` do MATLAB), `nfev`.
 - Minimizador interno: argumento opcional `interno(P, x)`, que devolve um objeto com `.x` e `.nfev` (chamadas a P). Por omissão, o Nelder–Mead da UC na versão da comparação: `nelder_mead_comp(P, x)` (tolx = 10⁻¹⁰, tolf = 10⁻¹², kmax = 2000). O slide usa o `fminsearch` do MATLAB.
 - `nelder_mead_comp.py` (em `code/python/common/`, partilhado com 4.3.2; encontrado através de `import uc_setup`) — o Nelder–Mead da UC na versão do script da comparação de 4.3.2 (ver abaixo).
@@ -28,7 +30,7 @@ Os números da comparação (844; 864 de (1,1)) vêm do Nelder–Mead didático 
 2. 2D (min x₁² + x₂² s.a. x₁ + x₂ ≥ 1), R = 1, 10, 100, 1000 com arranque a quente: x_R, g(x_R), ‖x_R − x*‖, R·‖x_R − x*‖ → 1/(2√2) (erro O(1/R)), u_R = −2R⟨g⟩ → 1.
 3. Restrição inativa: x_R = (1,1), u_R = 0.
 4. Escala das restrições (g̃₂ = 100(1 − x₂)): x₁,R, x₂,R e κ(∇²P) para R = 1, 10, 100.
-5. Igualdade (min 2x₁² + x₂² s.a. x₁ + x₂ = 1): x_R, h(x_R), λ_R = −2Rh → 4/3.
+5. Igualdade (min 2x₁² + x₂² s.a. x₁ + x₂ = 1): x_R, h(x_R), β_R = −2Rh → 4/3 (β das aulas; em 4.1, λ* = −4/3).
 6. A chamada do slide, com o interno por omissão.
 7. Comparação (lado exterior): tabela dos ciclos de (0,0) e de (1,1) até ‖x^(t) − x*‖ ≤ 10⁻⁴.
 

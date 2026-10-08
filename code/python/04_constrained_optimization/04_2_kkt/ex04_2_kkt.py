@@ -4,6 +4,7 @@
     slide, e verifica-as numericamente com kkt_check (estacionariedade,
     admissibilidade, complementaridade u_j g_j = 0 e sinal u_j >= 0).
     Convenção da UC: g_j(x) >= 0, h_l(x) = 0, L = f - u'g - lambda'h.
+    Nas aulas: L = f - lambda'g - beta'h; no código, u = lambda_j e lambda = beta_l das aulas.
       1. De 4.1 para 4.2 (círculo largo / apertado) e Geometria (2) (u < 0).
       2. Exemplo 1: os 2^J = 4 casos da receita; sobrevive o caso 3.
       3. «Cuidado: ativa não implica u > 0»: min x^2 s.a. x >= 0.
@@ -67,7 +68,7 @@ tolA = 1e-10        # contas exatas (a)
 tolB = 1e-4         # solver (b)
 
 print("Otimização — deck 4.2: condições de Karush-Kuhn-Tucker")
-print("Convenção da UC: g_j >= 0, h_l = 0, L = f - u'g - lambda'h")
+print("Convenção da UC: g_j >= 0, h_l = 0, L = f - u'g - lambda'h  (nas aulas: u = lambda_j, lambda = beta_l)")
 print("\n=============== (a) pelas condições KKT ===============")
 
 # ------------------------------------------------ 1. De 4.1 para 4.2

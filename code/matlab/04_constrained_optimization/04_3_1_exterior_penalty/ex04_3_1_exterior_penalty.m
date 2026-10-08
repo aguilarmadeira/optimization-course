@@ -6,7 +6,8 @@
 %   3. Restrição inativa: min (x1-1)^2 + (x2-1)^2 s.a. 9 - x1^2 - x2^2 >= 0:
 %      x_R = (1,1) e u_R = 0 para todo o R.
 %   4. «A escala das restrições importa»: g1 = 1 - x1, g2 = 100(1 - x2), R = 1, 10, 100.
-%   5. «E com igualdades?»: min 2x1^2 + x2^2 s.a. x1 + x2 - 1 = 0: x_R, h(x_R), lambda_R.
+%   5. «E com igualdades?»: min 2x1^2 + x2^2 s.a. x1 + x2 - 1 = 0: x_R, h(x_R), beta_R
+%      (o multiplicador beta das aulas, L = f - beta h; em 4.1, lambda* = -4/3).
 %   6. A chamada do slide «No computador» (tolviol = tolx = 1e-6, tmax = 12):
 %      com o fminsearch (o do slide; informativo) e com NelderMeadComp.
 %   7. A comparação do deck 4.3.2 (lado exterior): de (0,0), 6 ciclos, n_f = 844;
@@ -105,13 +106,13 @@ H = info.history(2:end, :);
 X = H(:, 6:7);  hv = sum(X, 2) - 1;  lam = H(:, 8);
 fprintf('\n5. Igualdade: min 2x1^2 + x2^2 s.a. x1 + x2 - 1 = 0 (x* = (1/3, 2/3), lambda* = 4/3)\n');
 for i = 1:4
-  fprintf('   R = %4g: x_R = (%.4f; %.4f), h = %.4f, lambda_R = -2Rh = %.3f\n', ...
+  fprintf('   R = %4g: x_R = (%.4f; %.4f), h = %.4f, beta_R = -2Rh = %.3f\n', ...
           H(i, 2), X(i, 1), X(i, 2), hv(i), lam(i));
 end
 c = [confere(X, [0.2000 0.4000; 0.3125 0.6250; 0.3311 0.6623; 0.3331 0.6662], 4), ...
      confere(hv, [-0.4000; -0.0625; -0.0066; -0.0007], 4), ...
      confere(lam, [0.800; 1.250; 1.325; 1.332], 3)];
-fprintf('  x_R: %s | h(x_R): %s | lambda_R: %s\n', simnao{c + 1});
+fprintf('  x_R: %s | h(x_R): %s | beta_R: %s\n', simnao{c + 1});
 ok = ok && all(c);
 
 % ------------------------------------------------------------ 6. Chamada do slide

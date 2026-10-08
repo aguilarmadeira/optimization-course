@@ -2,6 +2,8 @@
 
 Estado: **disponível**.
 
+> **Notação das aulas.** No deck 6.4 o multiplicador de f₁ ≤ ε (a taxa de troca) chama-se **λ**, como em 4.2 (𝓛 = f₂ − λ g, g = ε − f₁ ≥ 0). No código mantém-se o nome `u` (`info.u`); os valores são os mesmos.
+
 - Módulo/função: `epsilon_constraint.py` — `epsilon_constraint(f1, f2, x0, bounds, E, verbose=False, grafico=False)` → `EpsResult`. Para cada `e` de `E` resolve min f₂(x) s.a. g(x) = e − f₁(x) ≥ 0 com `scipy.optimize.minimize(method='SLSQP')` (como no slide; a UC não reimplementa o SLSQP) e arranque a quente.
 - `EpsResult`: `x`, `fx`, `u` (multiplicadores de f₁ ≤ e: `r.multipliers` do SLSQP nas versões recentes do SciPy; senão, `r.v` do `trust-constr`, como no slide), `nit`, `nfev` (soma de `r.nfev` = avaliações de f₂), `nfev1` (chamadas a f₁), `ncalls` (= nfev + nfev1), `ngev = nhev = 0`, `history` (`[e, x, f1, f2, u, nf2, nf1]`), `cols`, `status`, `flag`, `message`.
 - Exemplo: `ex06_4_epsilon_constraint.py`, que reproduz os números do deck 6.4 (os mesmos que o exemplo MATLAB, mais as contagens do SLSQP).

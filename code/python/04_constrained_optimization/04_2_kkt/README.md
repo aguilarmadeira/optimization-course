@@ -2,6 +2,8 @@
 
 Estado: **disponível**.
 
+> **Notação das aulas.** Nos decks 4.2 e 4.3 os multiplicadores das desigualdades g_j ≥ 0 chamam-se **λ_j** e os das igualdades **β_ℓ**, com 𝓛 = f − Σ λ_j g_j − Σ β_ℓ h_ℓ (nas igualdades, β_ℓ = −λ_ℓ do Lagrangiano 𝓛 = f + Σ λ_ℓ h_ℓ de 4.1). No código mantêm-se os nomes `u` (= λ_j das aulas) e `lam` (= β_ℓ das aulas); os valores são os mesmos.
+
 - Não há função da UC neste deck: o código é um exemplo, com uma função auxiliar pequena.
 - Auxiliar: `kkt_check.py` — `ok, res = kkt_check(df, g, Jg, u, h=None, Jh=None, lam=None, tol=1e-8)`: verifica as condições KKT num ponto, na convenção da UC (g_j ≥ 0, h_ℓ = 0, 𝓛 = f − uᵀg − λᵀh). `res` tem os resíduos `estac`, `admis`, `compl`, `sinal` e o conjunto ativo `ativas` (índices a começar em 1, como nos slides). Só usa `numpy`; não verifica a LICQ nem classifica o ponto.
 - Exemplo: `ex04_2_kkt.py`, que reproduz os números do deck 4.2 (os mesmos que o exemplo MATLAB):
@@ -23,8 +25,8 @@ python ex04_2_kkt.py
 
 **(b)** `trust-constr` com `NonlinearConstraint(g, 0, np.inf)` (e `NonlinearConstraint(h, 0, 0)` quando há igualdades), gradientes analíticos (`jac=`), `gtol = 1e-10`, `xtol = 1e-12`. O SciPy escreve 𝓛 = f + vᵀc, logo:
 
-- **u_UC = −`r.v[0]`** (desigualdades g ≥ 0) e **λ_UC = −`r.v[1]`** (igualdades);
-- no `fmincon` seria u_UC = `lambda.ineqnonlin` e λ_UC = −`lambda.eqnonlin` (deck 4.2, «No computador»).
+- **u_UC = −`r.v[0]`** (desigualdades g ≥ 0) e **β_ℓ (`lam`) = −`r.v[1]`** (igualdades);
+- no `fmincon` seria u = λ_j = `lambda.ineqnonlin` e β_ℓ = −`lambda.eqnonlin` (deck 4.2, «No computador»).
 
 A produção com `linprog(c=-c, ...)`: `res.ineqlin.marginals` = (−10, −20, 0) e os preços-sombra são o simétrico (o SciPy minimiza −L), como diz o 1.1.
 

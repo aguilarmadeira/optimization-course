@@ -2,6 +2,8 @@
 
 Estado: **disponível**.
 
+> **Notação das aulas.** Nos decks 4.2 e 4.3 o multiplicador de uma desigualdade g_j ≥ 0 chama-se **λ_j** (e o de uma igualdade **β_ℓ**). No código mantém-se o nome `u` (`info.u`) para as estimativas de λ_j; os valores são os mesmos.
+
 - Módulo/funções: `extreme_barrier.py` — `extreme_barrier(f, g, x)`: f(x) se todas as g_j(x) ≥ 0, senão `inf` sem avaliar f; `extreme_barrier(F, None, x)`: restrição oculta, `inf` se F falha (NaN, inf ou exceção).
 - Usa o `hooke_jeeves` do deck 3.2.5 (com o argumento opcional `menor`, a comparação usada pela regra de admissibilidade) e o `nelder_mead` do 3.2.3, encontrados através de `import uc_setup`.
 - Exemplo: `ex04_3_3_constraint_handling.py`, que reproduz os números do deck 4.3.3. Os mesmos números que o exemplo MATLAB.

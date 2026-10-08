@@ -6,7 +6,8 @@ function [ok, res] = KKTCheck(df, g, Jg, u, h, Jh, lam, tol)
 %   [ok, res] = KKTCheck(df, g, Jg, u, h, Jh, lam, tol)
 %
 %   Problema: min f(x) s.a. g_j(x) >= 0 (j = 1..J), h_l(x) = 0 (l = 1..K).
-%   Lagrangiano da UC: L = f - u'g - lambda'h.  Tudo avaliado no ponto x:
+%   Lagrangiano: L = f - u'g - lambda'h (nas aulas, L = f - lambda'g - beta'h:
+%   aqui u = lambda_j das aulas e lambda = beta_l das aulas).  Tudo avaliado no ponto x:
 %     df    gradiente de f (n x 1)
 %     g     valores g_j(x) (J x 1);  Jg  jacobiana (J x n): linha j = grad g_j'
 %     u     multiplicadores das desigualdades (J x 1)

@@ -6,7 +6,8 @@
 3. Restrição inativa: min (x1-1)^2 + (x2-1)^2 s.a. 9 - x1^2 - x2^2 >= 0:
    x_R = (1,1) e u_R = 0 para todo o R.
 4. «A escala das restrições importa»: g1 = 1 - x1, g2 = 100(1 - x2), R = 1, 10, 100.
-5. «E com igualdades?»: min 2x1^2 + x2^2 s.a. x1 + x2 - 1 = 0: x_R, h(x_R), lambda_R.
+5. «E com igualdades?»: min 2x1^2 + x2^2 s.a. x1 + x2 - 1 = 0: x_R, h(x_R), beta_R
+   (o multiplicador beta das aulas, L = f - beta h; em 4.1, lambda* = -4/3).
 6. A chamada do slide «No computador» (tolviol = tolx = 1e-6, tmax = 12).
 7. A comparação do deck 4.3.2 (lado exterior): de (0,0), 6 ciclos, n_f = 844;
    de (1,1), 6 ciclos, n_f = 864 (até ||x^(t) - x*|| <= 1e-4, sem a avaliação final).
@@ -117,12 +118,12 @@ H = r.history[1:]
 X = H[:, 5:7]; hv = X.sum(axis=1) - 1; lam = H[:, 7]
 print("\n5. Igualdade: min 2x1^2 + x2^2 s.a. x1 + x2 - 1 = 0 (x* = (1/3, 2/3), lambda* = 4/3)")
 for i in range(4):
-    print("   R = %4g: x_R = (%.4f; %.4f), h = %.4f, lambda_R = -2Rh = %.3f"
+    print("   R = %4g: x_R = (%.4f; %.4f), h = %.4f, beta_R = -2Rh = %.3f"
           % (H[i, 1], X[i, 0], X[i, 1], hv[i], lam[i]))
 c = [confere(X, [[0.2000, 0.4000], [0.3125, 0.6250], [0.3311, 0.6623], [0.3331, 0.6662]], 4),
      confere(hv, [-0.4000, -0.0625, -0.0066, -0.0007], 4),
      confere(lam, [0.800, 1.250, 1.325, 1.332], 3)]
-print("  x_R: %s | h(x_R): %s | lambda_R: %s" % simnao(c))
+print("  x_R: %s | h(x_R): %s | beta_R: %s" % simnao(c))
 ok = ok and all(c)
 
 # ------------------------------------------------------------ 6. Chamada do slide

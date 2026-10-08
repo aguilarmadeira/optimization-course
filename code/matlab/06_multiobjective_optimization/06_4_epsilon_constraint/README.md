@@ -2,6 +2,8 @@
 
 Estado: **disponível**.
 
+> **Notação das aulas.** No deck 6.4 o multiplicador de f₁ ≤ ε (a taxa de troca) chama-se **λ**, como em 4.2 (𝓛 = f₂ − λ g, g = ε − f₁ ≥ 0). No código mantém-se o nome `u` (`info.u`); os valores são os mesmos.
+
 - Função: `EpsilonConstraint.m` — `[x, fx, info] = EpsilonConstraint(f1, f2, x0, lb, ub, E, verbose, grafico)`. Para cada `e` de `E` resolve min f₂(x) s.a. g(x) = e − f₁(x) ≥ 0, lb ≤ x ≤ ub, com arranque a quente. O núcleo é o do slide «Em MATLAB: varrer ε com fmincon»: `nonl = @(x) deal(f1(x) - e, [])`, `u = lambda.ineqnonlin`, `info.nfev = info.nfev + out.funcCount`, `x0 = x`.
 - `info`: `u` (multiplicador de f₁ ≤ e, a taxa de troca), `nfev` (soma de `out.funcCount` com `fmincon`; chamadas a f₂ com `sqp`), `nf2`, `nf1` e `ncalls` (chamadas a f₂ e a f₁ contadas diretamente, e a soma), `ngev = nhev = 0`, `nit`, `history` (uma linha por e: `[e x f1 f2 u nf2 nf1]`), `cols`, `exitflag`, `solver`, `flag`, `message`. `help EpsilonConstraint`.
 - Exemplo: `ex06_4_epsilon_constraint.m`, que reproduz os números do deck 6.4.

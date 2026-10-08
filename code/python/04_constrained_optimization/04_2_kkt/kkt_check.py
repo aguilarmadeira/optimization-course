@@ -13,6 +13,7 @@ import numpy as np
 
 def kkt_check(df, g=None, Jg=None, u=None, h=None, Jh=None, lam=None, tol=1e-8):
     """Condições KKT de min f s.a. g_j(x) >= 0, h_l(x) = 0, com L = f - u'g - lambda'h.
+    (Nas aulas: L = f - lambda'g - beta'h; aqui u = lambda_j das aulas e lambda = beta_l das aulas.)
 
     Tudo avaliado no ponto x:
     df : gradiente de f (n,)

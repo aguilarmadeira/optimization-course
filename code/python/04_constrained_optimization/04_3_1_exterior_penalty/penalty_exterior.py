@@ -104,7 +104,7 @@ def penalty_exterior(f, g, h, x0, R0, c, tolviol, tolx, tmax, interno=None, verb
 
     fx = f(x); nfev += 1                                # avaliação final
     u = -2 * Rult * br(_vetor(g(x)))                    # u_R = -2R<g>
-    lam = -2 * Rult * _vetor(h(x))                      # lambda_R = -2R h
+    lam = -2 * Rult * _vetor(h(x))                      # beta_R = -2R h (o beta das aulas, L = f - beta h)
     cols = (("t", "R", "n_f(ciclo)", "n_f(acum)", "viol")
             + tuple("x%d" % (i + 1) for i in range(n))
             + tuple("u%d" % (j + 1) for j in range(J))
