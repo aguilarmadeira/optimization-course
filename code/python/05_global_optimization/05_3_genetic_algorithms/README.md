@@ -32,7 +32,7 @@ A geração à mão (parte 1) é o AG binário do slide (roleta, cruzamento a 1 
 ## Saída esperada (resumo)
 
 - Geração à mão: cromossomas 11010110, 10001000, …; ξ = 0.679, 0.870, 0.227, 0.895, 0.872, 0.019 → pais 2 4 2 5 4 1; cortes após os bits 3, 4, 7; uma mutação; média de f 11.9 → 10.4, melhor 0.111 → 0.323 — tudo igual ao slide.
-- Rastrigin: gerações 0/5/20/60: melhor 6.48 / 0.581 / 1.8·10⁻⁵ / 8.2·10⁻¹³, média 31.3 / 15.2 / 2.0 / 1.4 (os valores da figura); f < 10⁻¹², n_f = 2440. Amostra de 30 pontos: AG 100 % (n_f = 2440), SA 100 % (n_f = 3001).
+- Rastrigin: gerações 0/5/20/60: melhor 6.48 / 0.581 / 1.8·10⁻⁵ / 8.2·10⁻¹³, média 31.3 / 15.2 / 2.0 / 1.4 (os valores da figura); f < 10⁻¹², n_f = 2440. Amostra de 30 pontos: AG 100 % (n_f = 2440), SA das aulas 97 % (ponto final; n_f mediana 5323).
 - Tabela: 74.7, 60.7, 60.0, 33.7, 96.3 %; 76.3, 78.0 %; 96.3, 45.7 % → 75/61/60/34/96, 76/78, 96/46 % do slide; n_f = 420, 126, 1260.
 - Última linha: `confere com os slides: sim`.
 

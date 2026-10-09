@@ -10,7 +10,8 @@
    pm = 0.1, sigma = 0.5, 2 elites (2440 avaliações), semente 2: melhor e
    média nas gerações 0, 5, 20, 60, f < 1e-12 no fim. E «A mesma função,
    várias estratégias»: 30 corridas (semente 21, a amostra do script, com o
-   SA do 5.2 intercalado): AG 100 % com n_f = 2440, SA 100 % com n_f = 3001.
+   SA do 5.2 intercalado): AG 100 % com n_f = 2440, SA 97 % (ponto final) com
+   n_f mediana 5323 [4196; 6070].
    E, a título informativo, a chamada do slide «No computador» (sementes 1..30).
 3. «O que fazem os parâmetros?»: função de referência do cap. 5, 300 corridas
    (semente 11), sucesso |x - x*| < 0.3: referência 75 %, s = 6 61 %, pc = 0
@@ -130,17 +131,19 @@ ok = ok and all(c2)
 
 # a amostra de 30 pontos do script (semente 21): SA e AG intercalados no mesmo gerador
 rng = np.random.default_rng(21)
-fsa = np.zeros(30); fag = np.zeros(30)
+fsa = np.zeros(30); fag = np.zeros(30); nsa = np.zeros(30)
 for k in range(30):
     x0 = rng.uniform(-5.12, 5.12, 2)
-    rs = simulated_annealing(rastrigin, x0, 20.0, 0.995, 0.5, 3000, -5.12, 5.12, rng=rng)
+    rs = simulated_annealing(rastrigin, x0, 20.0, 0.5, 10, 0.1, 0.5, -5.12, 5.12, rng=rng)   # SA das aulas
     ra = genetic_algorithm(rastrigin, 2, -5.12, 5.12, 40, 60, 0.9, 0.1, 0.5, 2, rng=rng)
-    fsa[k] = rs.fx; fag[k] = ra.fx
-print("30 corridas (semente 21), sucesso f < 1: AG %.0f%% (n_f = %d), SA %.0f%% (n_f = %d);"
-      " medianas f: AG %.1e, SA %.3f" % (100 * np.mean(fag < 1), ra.nfev, 100 * np.mean(fsa < 1), rs.nfev,
-                                         np.median(fag), np.median(fsa)))
-c2 = [np.all(fag < 1), ra.nfev == 2440, np.all(fsa < 1), rs.nfev == 3001]
-print("  AG 100 %%: %s | 2440: %s | SA 100 %%: %s | 3001: %s" % simnao(c2))
+    fsa[k] = rs.fx; fag[k] = ra.fx; nsa[k] = rs.nfev
+q1, q2, q3 = np.percentile(nsa, [25, 50, 75])
+print("30 corridas (semente 21), sucesso f < 1: AG %.0f%% (n_f = %d), SA %.0f%% (ponto final; n_f mediana"
+      " %.0f [%.0f; %.0f]); medianas f: AG %.1e, SA %.3f"
+      % (100 * np.mean(fag < 1), ra.nfev, 100 * np.mean(fsa < 1), q2, q1, q3, np.median(fag), np.median(fsa)))
+c2 = [np.all(fag < 1), ra.nfev == 2440, round(100 * np.mean(fsa < 1)) == 97,
+      ["%.0f" % v for v in (q2, q1, q3)] == ["5323", "4196", "6070"]]
+print("  AG 100 %%: %s | 2440: %s | SA 97 %%: %s | n_f do SA 5323 [4196; 6070]: %s" % simnao(c2))
 ok = ok and all(c2)
 
 # a chamada do slide «No computador», com default_rng(s) no lugar de rng(s) (informativo)
