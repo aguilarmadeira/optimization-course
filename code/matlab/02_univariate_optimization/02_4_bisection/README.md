@@ -26,11 +26,11 @@ ex02_4_bisection
 
 ## O que o exemplo imprime
 
-As tabelas das iterações (k = 1, 2, …) dos exemplos 2 (x² + 54/x em [1,4], ε = 0,05) e 1 (−2 sin x + x²/16 em [−1,3], ε = 0,03), os valores finais e as contagens, a variante com 15 reduções, os dois exercícios «Para resolver» (ε = 0,01), o exemplo «Quantas iterações?» e a verificação com os slides. A coluna f(z) é só para leitura. Os slides usam vírgula decimal; o código usa o ponto.
+As tabelas das iterações (k = 1, 2, …) dos exemplos 2 (o exemplo-guia, 8e¹⁻ˣ + 7 ln x em [1,2], ε = 0,01, do 1.º teste de 2019) e 1 (−2 sin x + x²/16 em [−1,3], ε = 0,03), os valores finais e as contagens, a variante com 15 reduções, os dois exercícios «Para resolver» (ε = 0,01), o exemplo «Quantas iterações?» e a verificação com os slides. A coluna f(z) é só para leitura. Os slides usam vírgula decimal; o código usa o ponto.
 
 ## Saída esperada (resumo)
 
-- Exemplo 2: 7 iterações, z = 2.9922 (f′(z) = −0.0470), n_g = 7 + 2 = 9, n_f = 0. Variante com 15 reduções: x₂ − x₁ = 3/2¹⁵ = 9.2e-05; a secção áurea (L = 0.0022) fica 24 vezes maior.
+- Exemplo 2: 6 iterações, z = 1.6094 (1.609375; f′(z) = −0.00001), n_g = 6 + 2 = 8, n_f = 0. Com ε = 0,03 terminaria na iteração 3 (z = 1.625). Variante com 15 reduções: x₂ − x₁ = 1/2¹⁵ = 3.1e-05; a secção áurea (L = 0.0007) fica 24 vezes maior.
 - Exemplo 1: 7 iterações, z = 1.4688 (f′(z) = −0.0201; exato 1.4783). Com ε = 0,05: 3 iterações, z = 1.5.
 - Para resolver: 6 iterações, 2.5781 / 8.1355 (exato 2.5678: erro 0.0104 > ε); 10 iterações, 1.4492 / −2.7153.
 - Última linha: `confere com os slides: sim`.

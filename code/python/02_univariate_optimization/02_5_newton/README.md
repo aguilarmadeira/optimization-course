@@ -16,14 +16,13 @@ python ex02_5_newton.py
 
 ## O que o exemplo imprime
 
-As tabelas do exemplo-guia (x² + 54/x, x₀ = 2.5), do exemplo de convergência quadrática (x³ − 2x² + 4, x₀ = 1), do exemplo de maximização (8 + 5x − 3x⁴ − 2x⁶, x₀ = 0.5) e da comparação «Os quatro métodos» (x₀ = 1), com as contagens, a classificação do ponto por f'' e a verificação com os slides. Os slides usam vírgula decimal; o código usa o ponto.
+As tabelas do exemplo-guia (8e¹⁻ˣ + 7 ln x, x₀ = 1, do 1.º teste de 2019), do exemplo de convergência quadrática (x³ − 2x² + 4, x₀ = 1) e do exemplo de maximização (8 + 5x − 3x⁴ − 2x⁶, x₀ = 0.5), a pergunta de abertura (x₀ = 1.5) e o erro para «Os quatro métodos», com as contagens, a classificação do ponto por f'' e a verificação com os slides. Os slides usam vírgula decimal; o código usa o ponto.
 
 ## Saída esperada (resumo)
 
-- Exemplo-guia (ε_g = 10⁻⁸; o slide não fixa ε_g): x₁ = 2.9084381; 4 iterações até x* = 3 (erro 2.4e-12); n_g = 5, n_H = 4 (1 + 1 por iteração, mais f'(x₀)), n_f = 0; a 5.ª iteração dá x₅ = 3 exatamente.
+- Exemplo-guia (ε_g = 10⁻⁶; o slide não fixa ε_g): x₁ = 2, x₂ = 1.5331535; 5 iterações até x* = 1.6093811 (erro 1.3e-13); n_g = 6 (uma por iteração, mais f'(x₀)), n_H = 5, n_f = 0. Pergunta de abertura: de x₀ = 1.5, x₁ = 1.607.
 - Cúbica: 3 iterações, |f'(x₃)| = 8.1e-04, mínimo em 4/3.
 - Maximização: 5 iterações, x* = 0.6617391, f(x*) = 10.565491, f'' < 0 (máximo).
-- De x₀ = 1: erro 4.5e-04 após 5 it. (n_g = 6, n_H = 5), 1.8e-15 após 7.
 - Última linha: `confere com os slides: sim`.
 
 O resultado tem os campos `x`, `fx`, `nit`, `nfev`, `ngev`, `nhev`, `history`, `flag` (e `message`), com as mesmas contagens que a versão MATLAB.

@@ -1,6 +1,7 @@
 % EX02_2_GOLDEN_SECTION  Reproduz os exemplos do deck 2.2 (secção áurea).
 %
-%   Exemplo 2 (exemplo-guia): f(x) = x^2 + 54/x em [1,4], 15 reduções.
+%   Exemplo 2 (exemplo-guia, 1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x em [1,2],
+%                             15 reduções (os slides mostram f com 5 casas).
 %   Exemplo 1:                f(x) = -3 sin(x) + x^2/8 em [0,4], 15 reduções.
 %   Slide «Quantas reduções?»: L0 = 1, tolx = 0.01  =>  N = 10, n_f = 12.
 %
@@ -20,27 +21,28 @@ ok = true;
 fprintf('Otimização — deck 2.2: método da secção áurea\n');
 
 % ------------------------------------------------------------ Exemplo 2
-f = @(x) x.^2 + 54./x;
-a = 1;  b = 4;  N = 15;
-fprintf('\nExemplo 2: f(x) = x^2 + 54/x em [%g,%g], N = %d reduções\n', a, b, N);
+f = @(x) 8*exp(1 - x) + 7*log(x);
+a = 1;  b = 2;  N = 15;
+fprintf('\nExemplo 2 (exemplo-guia, 1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x em [%g,%g], N = %d reduções\n', a, b, N);
 [x, fx, info] = GoldenSection(f, a, b, N, true);
 L15 = info.history(end, 8);
-fprintf('Após %d reduções: L_%d = %.4f, x* ~ %.4f, f(x*) ~ %.4f  (exato: x* = 3, f = 27)\n', ...
+fprintf('Após %d reduções: L_%d = %.4f, x* ~ %.4f, f(x*) ~ %.5f  (exato: x* = 1.6093811, f* = 7.6804459)\n', ...
         N, N, L15, x, fx);
 fprintf('n_f = N + 2 = %d para localizar x*; com f no ponto médio final, n_f = N + 3 = %d\n', ...
         info.nfev_loc, info.nfev);
 
-% tabela do slide (k = 0..7): a  b  x1  x2  f(x1)  f(x2)  L_k
-T2 = [1.0000 4.0000 2.1459 2.8541 29.7692 27.0660 3.0000
-      2.1459 4.0000 2.8541 3.2918 27.0660 27.2403 1.8541
-      2.1459 3.2918 2.5836 2.8541 27.5761 27.0660 1.1459
-      2.5836 3.2918 2.8541 3.0213 27.0660 27.0014 0.7082
-      2.8541 3.2918 3.0213 3.1246 27.0014 27.0453 0.4377
-      2.8541 3.1246 2.9574 3.0213 27.0055 27.0014 0.2705
-      2.9574 3.1246 3.0213 3.0608 27.0014 27.0109 0.1672
-      2.9574 3.0608 2.9969 3.0213 27.0000 27.0014 0.1033];
-c = [confere(info.history(1:8, 2:8), T2, 4), confere(L15, 0.0022, 4), ...
-     confere(x, 3.0002, 4), confere(fx, 27.0000, 4), ...
+% tabela do slide (k = 0..7): a  b  x1  x2 (4 casas)  f(x1)  f(x2) (5 casas)  L_k (4 casas)
+T2 = [1.0000 2.0000 1.3820 1.6180 7.72470 7.68051 1.0000
+      1.3820 2.0000 1.6180 1.7639 7.68051 7.69947 0.6180
+      1.3820 1.7639 1.5279 1.6180 7.68600 7.68051 0.3820
+      1.5279 1.7639 1.6180 1.6738 7.68051 7.68381 0.2361
+      1.5279 1.6738 1.5836 1.6180 7.68100 7.68051 0.1459
+      1.5836 1.6738 1.6180 1.6393 7.68051 7.68118 0.0902
+      1.5836 1.6393 1.6049 1.6180 7.68046 7.68051 0.0557
+      1.5836 1.6180 1.5967 1.6049 7.68058 7.68046 0.0344];
+D2 = repmat([4 4 4 4 5 5 4], 8, 1);
+c = [confere(info.history(1:8, 2:8), T2, D2), confere(L15, 0.0007, 4), ...
+     confere(x, 1.6095, 4), confere(fx, 7.68045, 5), ...
      info.nfev_loc == 17, info.nfev == 18];
 fprintf('  tabela k = 0..7: %s | L_15: %s | x*: %s | f(x*): %s | n_f = 17: %s | n_f = 18: %s\n', ...
         simnao{c + 1});

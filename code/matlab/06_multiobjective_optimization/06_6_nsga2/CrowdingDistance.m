@@ -6,7 +6,8 @@ function d = CrowdingDistance(F, idx)
 %   Os extremos recebem d = Inf; para os outros, ordenando por cada
 %   objetivo i,
 %       d_p = soma_i (f_i(seguinte) - f_i(anterior)) / (f_i^max - f_i^min).
-%   Frentes com 1 ou 2 pontos: d = Inf para todos.
+%   Frentes com 1 ou 2 pontos: d = Inf para todos. Se f_i^max = f_i^min
+%   na frente, o objetivo i não contribui (nem para os extremos).
 %
 %   Entradas
 %     F        matriz N x m dos objetivos
@@ -34,8 +35,8 @@ end
 for i = 1:m
   [v, o] = sort(F(idx, i));          % ordenar a frente pelo objetivo i
   amp = v(end) - v(1);               % f_i^max - f_i^min na frente
-  d(o(1)) = Inf;  d(o(end)) = Inf;   % extremos
-  if amp > 0
+  if amp > 0                         % amp = 0: o objetivo i não conta
+    d(o(1)) = Inf;  d(o(end)) = Inf; % extremos
     for k = 2:L - 1
       d(o(k)) = d(o(k)) + (v(k + 1) - v(k - 1))/amp;
     end

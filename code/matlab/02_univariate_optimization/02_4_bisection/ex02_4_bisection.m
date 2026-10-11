@@ -1,8 +1,9 @@
 % EX02_4_BISECTION  Reproduz os exemplos do deck 2.4 (bisseção, paragem |f'(z)| <= eps).
 %
-%   Exemplo 2 (exemplo-guia): f(x) = x^2 + 54/x em [1,4], eps = 0.05:
-%             7 iterações, z = 2.9922, f'(z) = -0.0470, n_g = 7 + 2 = 9, n_f = 0.
-%             Variante com 15 reduções: x2 - x1 = 3/2^15 = 9.2e-5 (secção áurea: 0.0022).
+%   Exemplo 2 (exemplo-guia, 1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x em [1,2],
+%             eps = 0.01: 6 iterações, z = 1.6094 (1.609375), f'(z) = -0.00001,
+%             n_g = 6 + 2 = 8, n_f = 0; com eps = 0.03 pararia na it. 3 (z = 1.625).
+%             Variante com 15 reduções: x2 - x1 = 1/2^15 = 3.1e-5 (secção áurea: 0.0007).
 %   Exemplo 1: f(x) = -2 sin(x) + x^2/16 em [-1,3], eps = 0.03 (e eps = 0.05).
 %   «Para resolver», eps = 0.01: x + 31/(x+3) em [0,5] e -3 sin(x) + x^2/8 em [0,4].
 %   «Quantas iterações?» (variante): [0,2], tolx = 1e-3 -> k = 11; tolx = 1e-4 -> k = 15.
@@ -22,33 +23,36 @@ ok = true;
 fprintf('Otimização — deck 2.4: bisseção (paragem |f''(z)| <= eps)\n');
 
 % ------------------------------------------------------------ Exemplo 2
-f  = @(x) x.^2 + 54./x;
-df = @(x) 2*x - 54./x.^2;
-a = 1;  b = 4;  eps_ = 0.05;
-fprintf('\nExemplo 2: f(x) = x^2 + 54/x em [%g,%g], f''(%g) = %g < 0, f''(%g) = %g > 0, eps = %g\n', ...
+f  = @(x) 8*exp(1 - x) + 7*log(x);
+df = @(x) -8*exp(1 - x) + 7./x;
+a = 1;  b = 2;  eps_ = 0.01;
+fprintf('\nExemplo 2 (exemplo-guia, 1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x em [%g,%g], f''(%g) = %g < 0, f''(%g) = %.4f > 0, eps = %g\n', ...
         a, b, a, df(a), b, df(b), eps_);
 [x, fx, info] = Bisection(f, df, a, b, eps_, [], [], true);
-fprintf('|f''(z)| = %.4f <= eps na iteração %d: x* ~ z = %.4f, f(z) = %.4f (exato: x* = 3)\n', ...
+fprintf('|f''(z)| = %.5f <= eps na iteração %d: x* ~ z = %.4f, f(z) = %.5f (exato: x* = 1.6093811)\n', ...
         abs(info.history(end, 6)), info.nit, x, fx);
 fprintf('n_g = %d + 2 = %d, n_f = %d\n', info.nit, info.ngev, info.nfev);
-[xv, ~, iv] = Bisection(f, df, a, b, 0, [], 3/2^15);
-tau = (sqrt(5) - 1)/2;  Lgs = 3*tau^15;
-fprintf('Variante, 15 reduções (tolx = 3/2^15): %d iterações, x2 - x1 = %.1e, x = %.4f, n_g = %d\n', ...
+[x3, ~, i3] = Bisection(f, df, a, b, 0.03);
+fprintf('Com eps = 0.03: termina na iteração %d, z = %.4f\n', i3.nit, x3);
+[xv, ~, iv] = Bisection(f, df, a, b, 0, [], 1/2^15);
+tau = (sqrt(5) - 1)/2;  Lgs = tau^15;
+fprintf('Variante, 15 reduções (tolx = 1/2^15): %d iterações, x2 - x1 = %.1e, x = %.4f, n_g = %d\n', ...
         iv.nit, iv.L, xv, iv.ngev);
-fprintf('Secção áurea, mesmo [1,4], 15 reduções: L = %.4f, %.0f vezes maior\n', Lgs, Lgs/iv.L);
-T2 = [1 1.0000 4.0000 2.5000 27.8500 -3.6400
-      2 2.5000 4.0000 3.2500 27.1779  1.3876
-      3 2.5000 3.2500 2.8750 27.0482 -0.7831
-      4 2.8750 3.2500 3.0625 27.0116  0.3674
-      5 2.8750 3.0625 2.9688 27.0030 -0.1895
-      6 2.9688 3.0625 3.0156 27.0007  0.0933
-      7 2.9688 3.0156 2.9922 27.0002 -0.0470];
-c = [isequal(size(info.history), [7 6]) && confere(info.history, T2, 4), info.flag == 0, ...
-     confere(x, 2.9922, 4), info.ngev == 9, info.nfev == 0, ...
-     iv.nit == 15 && iv.flag == 2, confere(iv.L, 9.2e-5, 6), iv.ngev == 17, ...
-     confere(Lgs, 0.0022, 4), round(Lgs/iv.L) == 24];
-fprintf(['  tabela k = 1..7: %s | parou por |f''| <= eps: %s | z = 2.9922: %s | n_g = 9: %s | n_f = 0: %s' ...
-         ' | variante 15 it.: %s | 9.2e-5: %s | n_g = 17: %s | L áurea: %s | 24 vezes: %s\n'], simnao{c + 1});
+fprintf('Secção áurea, mesmo [1,2], 15 reduções: L = %.4f, %.0f vezes maior\n', Lgs, Lgs/iv.L);
+% tabela do slide: k  x1  x2  z (4 casas)  f(z)  f'(z) (5 casas)
+T2 = [1 1.0000 2.0000 1.5000 7.69050 -0.18558
+      2 1.5000 2.0000 1.7500 7.69624  0.22107
+      3 1.5000 1.7500 1.6250 7.68065  0.02560
+      4 1.5000 1.6250 1.5625 7.68227 -0.07826
+      5 1.5625 1.6250 1.5938 7.68065 -0.02586
+      6 1.5938 1.6250 1.6094 7.68045 -0.00001];
+D2 = repmat([0 4 4 4 5 5], 6, 1);
+c = [isequal(size(info.history), [6 6]) && confere(info.history, T2, D2), info.flag == 0, ...
+     confere(x, 1.6094, 4), info.ngev == 8, info.nfev == 0, i3.nit == 3 && x3 == 1.625, ...
+     iv.nit == 15 && iv.flag == 2, confere(iv.L, 3.1e-5, 6), iv.ngev == 17, ...
+     confere(Lgs, 0.0007, 4), round(Lgs/iv.L) == 24];
+fprintf(['  tabela k = 1..6: %s | parou por |f''| <= eps: %s | z = 1.6094: %s | n_g = 8: %s | n_f = 0: %s | eps = 0.03: 3 it.: %s' ...
+         ' | variante 15 it.: %s | 3.1e-5: %s | n_g = 17: %s | L áurea: %s | 24 vezes: %s\n'], simnao{c + 1});
 ok = ok && all(c);
 
 % ------------------------------------------------------------ Exemplo 1

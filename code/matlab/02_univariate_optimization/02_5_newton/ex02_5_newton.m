@@ -1,13 +1,14 @@
 % EX02_5_NEWTON  Reproduz os exemplos do deck 2.5 (Newton-Raphson).
 %
-%   Exemplo-guia: f(x) = x^2 + 54/x, x0 = 2.5: x1 = 2.908; 4 iterações até
-%       x* = 3 (erro 2.4e-12); n_g = n_H = 1 por iteração (+ f'(x0)).
-%       Paragem |f'| < tolg com tolg = 1e-8 (o slide não fixa tolg; qualquer
-%       valor entre 1.5e-11 e 1.6e-5 dá as mesmas 4 iterações).
+%   Exemplo-guia (1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x, x0 = 1:
+%       x1 = 2, x2 = 1.5331535, ...; 5 iterações até x* = 1.6093811 (erro 1.3e-13);
+%       n_g = n_H = 1 por iteração (+ f'(x0)). Paragem |f'| < tolg com tolg = 1e-6
+%       (o slide não fixa tolg; qualquer valor entre 2.2e-13 e 1.08e-6 dá as
+%       mesmas 5 iterações). Na pergunta de abertura, x0 = 1.5: x1 = 1.607.
 %   «Convergência quadrática»: x^3 - 2x^2 + 4, x0 = 1, tolg = 1e-3 (3 it.).
 %   «Newton procura f' = 0»: maximizar 8 + 5x - 3x^4 - 2x^6, x0 = 0.5,
 %       tolg = 1e-7 (5 it.).
-%   «Os quatro métodos»: x^2 + 54/x a partir de x0 = 1 (erro após 5 e 7 it.).
+%   «Os quatro métodos»: o exemplo-guia a partir de x0 = 1 (erro após 5 it.).
 %
 %   Imprime as tabelas como nos slides, os valores finais e as contagens, e
 %   no fim compara com os slides (vírgula decimal nos slides, ponto aqui).
@@ -23,31 +24,34 @@ ok = true;
 fprintf('Otimização — deck 2.5: Newton-Raphson\n');
 
 % ------------------------------------------------------- exemplo-guia
-f   = @(x) x.^2 + 54./x;
-df  = @(x) 2*x - 54./x.^2;
-ddf = @(x) 2 + 108./x.^3;
-x0 = 2.5;  tolg = 1e-8;  kmax = 20;
-fprintf('\nExemplo-guia: f(x) = x^2 + 54/x, x0 = %g, tolg = %g\n', x0, tolg);
+f   = @(x) 8*exp(1 - x) + 7*log(x);
+df  = @(x) -8*exp(1 - x) + 7./x;
+ddf = @(x) 8*exp(1 - x) - 7./x.^2;
+xs = 1.6093810677230782;                 % minimizante (Newton com muitas casas)
+x0 = 1;  tolg = 1e-6;  kmax = 20;
+fprintf('\nExemplo-guia (1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x, x0 = %g, tolg = %g\n', x0, tolg);
 [x, fx, info] = Newton1D(f, df, ddf, x0, tolg, kmax);
 H = info.history;
-fprintf('%3s %11s %11s %9s %11s %12s\n', 'k', 'x_k', 'df(x_k)', 'ddf(x_k)', 'x_k+1', '|x_k+1 - 3|');
+fprintf('%3s %11s %11s %9s %11s %13s\n', 'k', 'x_k', 'df(x_k)', 'ddf(x_k)', 'x_k+1', '|x_k+1 - x*|');
 for r = 1:size(H, 1)
-  fprintf('%3d %11.7f %+11.5f %9.4f %11.7f %12.1e\n', H(r, [1 2 4 5 6]), abs(H(r, 6) - 3));
+  fprintf('%3d %11.7f %+11.5f %9.4f %11.7f %13.1e\n', H(r, [1 2 4 5 6]), abs(H(r, 6) - xs));
 end
-fprintf('x* = %.7f, f(x*) = %.4f; %d iterações, n_g = %d, n_H = %d, n_f = %d\n', ...
+fprintf('x* = %.7f, f(x*) = %.7f; %d iterações, n_g = %d, n_H = %d, n_f = %d\n', ...
         x, fx, info.nit, info.ngev, info.nhev, info.nfev);
-[x5, ~, info5] = Newton1D([], df, ddf, x0, 1e-15, 5);
-fprintf('A 5.ª iteração chega à precisão de máquina: x_5 - 3 = %.1e (%d iterações)\n', x5 - 3, info5.nit);
-Tg = [2.5000000 -3.64000 8.9120 2.9084381
-      2.9084381 -0.56685 6.3898 2.9971495
-      2.9971495 -0.01712 6.0114 2.9999973
-      2.9999973 -0.00002 6.0000 3.0000000];
-eg = abs(H(:, 6) - 3);
-c = [size(H, 1) == 4 && confere(H(:, [2 6]), Tg(:, [1 4]), 7) && confere(H(:, 4), Tg(:, 2), 5) ...
-       && confere(H(:, 5), Tg(:, 3), 4), ...
-     confere(eg', [9.2e-2 2.9e-3 2.7e-6 2.4e-12], [3 4 7 13]), confere(H(1, 6), 2.908, 3), ...
-     info.nit == 4, info.ngev == 5, info.nhev == 4, info.nfev == 0, x5 == 3];
-fprintf('  tabela k = 0..3: %s | erros: %s | x1 = 2.908: %s | 4 it.: %s | n_g = 5: %s | n_H = 4: %s | n_f = 0: %s | x_5 = 3: %s\n', ...
+x1q = 1.5 - df(1.5)/ddf(1.5);
+fprintf('Pergunta de abertura: em x0 = 1.5, f''(1.5) = %.4f, f''''(1.5) = %.4f, x1 = %.3f\n', df(1.5), ddf(1.5), x1q);
+Tg = [1.0000000 -1.00000 1.0000 2.0000000
+      2.0000000  0.55696 1.1930 1.5331535
+      1.5331535 -0.12826 1.7160 1.6078977
+      1.6078977 -0.00244 1.6484 1.6093804
+      1.6093804 -0.0000011 1.6469 1.6093811];
+eg = abs(H(:, 6) - xs);
+c = [size(H, 1) == 5 && confere(H(:, [2 6]), Tg(:, [1 4]), 7) && confere(H(1:4, 4), Tg(1:4, 2), 5) ...
+       && confere(H(5, 4), -1.1e-6, 7) && confere(H(:, 5), Tg(:, 3), 4), ...
+     confere(eg', [3.9e-1 7.6e-2 1.5e-3 6.6e-7 1.3e-13], [2 3 4 8 14]), ...
+     confere([df(1.5) ddf(1.5) x1q], [-0.1856 1.7411 1.607], [4 4 3]), ...
+     info.nit == 5, info.ngev == 6, info.nhev == 5, info.nfev == 0];
+fprintf('  tabela k = 0..4: %s | erros: %s | abertura x1 = 1.607: %s | 5 it.: %s | n_g = 6: %s | n_H = 5: %s | n_f = 0: %s\n', ...
         simnao{c + 1});
 ok = ok && all(c);
 
@@ -110,17 +114,15 @@ fprintf('  tabela k = 0..4: %s | 5 it.: %s | x*: %s | f(x*): %s | máximo: %s\n'
 ok = ok && all(c);
 
 % ------------------------------------------------ os quatro métodos
-f   = @(x) x.^2 + 54./x;
-df  = @(x) 2*x - 54./x.^2;
-ddf = @(x) 2 + 108./x.^3;
-[x5, ~, i5] = Newton1D(f, df, ddf, 1, 1e-2, 20);      % para após 5 it.
-[x7, ~, i7] = Newton1D(f, df, ddf, 1, 1e-10, 20);     % para após 7 it.
-fprintf('\nOs quatro métodos, Newton de x0 = 1: erro após %d it. = %.1e (n_g = %d, n_H = %d); após %d it. = %.1e\n', ...
-        i5.nit, abs(x5 - 3), i5.ngev, i5.nhev, i7.nit, abs(x7 - 3));
-% o slide escreve 4,5e-4
-c = [i5.nit == 5, round(abs(x5 - 3)/1e-5) == 45, i5.ngev == 6, i5.nhev == 5, ...
-     i7.nit == 7, floor(log10(abs(x7 - 3))) == -15];
-fprintf('  5 it.: %s | erro 4,5e-4: %s | n_g = 6: %s | n_H = 5: %s | 7 it.: %s | erro da ordem de 1e-15: %s\n', simnao{c + 1});
+f   = @(x) 8*exp(1 - x) + 7*log(x);
+df  = @(x) -8*exp(1 - x) + 7./x;
+ddf = @(x) 8*exp(1 - x) - 7./x.^2;
+[x5, ~, i5] = Newton1D(f, df, ddf, 1, 1e-6, 20);      % para após 5 it.
+fprintf('\nOs quatro métodos, Newton de x0 = 1: erro após %d it. = %.1e (n_g = %d, n_H = %d)\n', ...
+        i5.nit, abs(x5 - xs), i5.ngev, i5.nhev);
+% o slide escreve 1,3e-13
+c = [i5.nit == 5, round(abs(x5 - xs)/1e-14) == 13, i5.ngev == 6, i5.nhev == 5];
+fprintf('  5 it.: %s | erro 1,3e-13: %s | n_g = 6: %s | n_H = 5: %s\n', simnao{c + 1});
 ok = ok && all(c);
 
 fprintf('\nconfere com os slides: %s\n', simnao{ok + 1});

@@ -15,7 +15,8 @@ def crowding_distance(F, idx):
 
     Os extremos recebem d = inf; para os outros, ordenando por cada objetivo i,
         d_p = soma_i (f_i(seguinte) - f_i(anterior)) / (f_i^max - f_i^min).
-    Frentes com 1 ou 2 pontos: d = inf para todos.
+    Frentes com 1 ou 2 pontos: d = inf para todos. Se f_i^max = f_i^min
+    na frente, o objetivo i não contribui (nem para os extremos).
 
     Parâmetros
     ----------
@@ -37,8 +38,8 @@ def crowding_distance(F, idx):
         o = np.argsort(F[idx, i])            # ordenar a frente pelo objetivo i
         v = F[idx, i][o]
         amp = v[-1] - v[0]                   # f_i^max - f_i^min na frente
-        d[o[0]] = d[o[-1]] = np.inf          # extremos
-        if amp > 0:
+        if amp > 0:                          # amp = 0: o objetivo i não conta
+            d[o[0]] = d[o[-1]] = np.inf      # extremos
             for k in range(1, len(idx) - 1):
                 d[o[k]] += (v[k + 1] - v[k - 1]) / amp
     return d

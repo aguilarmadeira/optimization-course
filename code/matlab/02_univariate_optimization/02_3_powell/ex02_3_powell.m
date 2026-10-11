@@ -1,7 +1,8 @@
 % EX02_3_POWELL  Reproduz os exemplos do deck 2.3 (interpolação quadrática).
 %
-%   Exemplo: f(x) = x^2 + 54/x, x1 = 1, Delta = 1, tolx = tolf = 1e-3:
-%            4 iterações (k = 0..3), sem reflexões, n_f = 3 + 4 = 7, x* = 3.
+%   Exemplo-guia (1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x, x1 = 1, Delta = 0.5,
+%            tolx = tolf = 1e-3: 4 iterações (k = 0..3), sem reflexões,
+%            n_f = 3 + 4 = 7, x* ~ 1.6094 (exato 1.6093811).
 %   «Quando a parábola não serve»: f(x) = x^4/4 - x^2/2 com os trios
 %            (0.3, 0.45, 0.6) -> a2 < 0, xb = -0.46;
 %            (0.55, 0.6, 0.65) -> a2 ~ 0+, xb = 5.31, f(xb) = 184;
@@ -21,29 +22,30 @@ ok = true;
 
 fprintf('Otimização — deck 2.3: interpolação quadrática sucessiva (Powell)\n');
 
-% ------------------------------------------------------------ exemplo
-f = @(x) x.^2 + 54./x;
-x1 = 1;  Delta = 1;  tolx = 1e-3;  tolf = 1e-3;  kmax = 50;
-fprintf('\nExemplo: f(x) = x^2 + 54/x, x1 = %g, Delta = %g, tolx = tolf = %g\n', ...
+% ------------------------------------------------------------ exemplo-guia
+f = @(x) 8*exp(1 - x) + 7*log(x);
+xs = 1.6093810677230782;                 % x* (f'(x*) = 0)
+x1 = 1;  Delta = 0.5;  tolx = 1e-3;  tolf = 1e-3;  kmax = 50;
+fprintf('\nExemplo-guia (1.º teste de 2019): f(x) = 8 e^(1-x) + 7 ln x, x1 = %g, Delta = %g, tolx = tolf = %g\n', ...
         x1, Delta, tolx);
 [x, fx, info] = PowellQuadratic(f, x1, Delta, tolx, tolf, kmax, true);
 fprintf('Fim: x* = %.4f, f(x*) = %.4f; %d iterações, %d reflexões, n_f = 3 + %d = %d\n', ...
         x, fx, info.nit, info.nrefl, info.nit + info.nrefl, info.nfev);
-fprintf('Erros |xb - 3|:');  fprintf(' %.1e', abs(info.history(:, 10) - 3));  fprintf('\n');
+fprintf('Erros |xb - x*|:');  fprintf(' %.1e', abs(info.history(:, 10) - xs));  fprintf('\n');
 
 % tabela do slide: x1 x2 x3 (4 casas) f1 f2 f3 (4) a1 a2 (3) xb f(xb) (4)
-T = [1.0000 2.0000 3.0000 55.0000 31.0000 27.0000 -24.000 10.000 2.7000 27.2900
-     2.0000 2.7000 3.0000 31.0000 27.2900 27.0000  -5.300  4.333 2.9615 27.0045
-     2.7000 2.9615 3.0000 27.2900 27.0045 27.0000  -1.092  3.251 2.9987 27.0000
-     2.9615 2.9987 3.0000 27.0045 27.0000 27.0000  -0.120  3.027 3.0000 27.0000];
+T = [1.0000 1.5000 2.0000 8.0000 7.6905 7.7951 -0.619 0.828 1.6237 7.6806
+     1.5000 1.6237 2.0000 7.6905 7.6806 7.7951 -0.080 0.768 1.6139 7.6805
+     1.5000 1.6139 1.6237 7.6905 7.6805 7.6806 -0.088 0.837 1.6096 7.6804
+     1.5000 1.6096 1.6139 7.6905 7.6804 7.6805 -0.092 0.840 1.6094 7.6804];
 H = info.history;
 tabok = size(H, 1) == 4 && confere(H(:, [2:7, 10:11]), T(:, [1:6, 9:10]), 4) ...
         && confere(H(:, 8:9), T(:, 7:8), 3);
-erros = abs(H(:, 10) - 3);
+erros = abs(H(:, 10) - xs);
 c = [tabok, info.nit == 4, info.nrefl == 0, info.nfev == 7, ...
-     confere(x, 3, 4), confere(fx, 27, 4), ...
-     confere(erros(2:4)', [0.04 0.0013 6e-6], [2 4 6])];
-fprintf('  tabela k = 0..3: %s | 4 it.: %s | sem reflexões: %s | n_f = 7: %s | x* = 3: %s | f = 27: %s | erros: %s\n', ...
+     confere(x, 1.6094, 4), confere(fx, 7.6804, 4), ...
+     confere(erros', [0.014 0.0045 0.0002 5e-5], [3 4 4 5]), all(H(2:end, 2) == 1.5)];
+fprintf('  tabela k = 0..3: %s | 4 it.: %s | sem reflexões: %s | n_f = 7: %s | x* = 1.6094: %s | f = 7.6804: %s | erros: %s | 1.5 fica no trio: %s\n', ...
         simnao{c + 1});
 ok = ok && all(c);
 
